@@ -45,10 +45,8 @@ public class Model {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 // System.out.println(rs);
-                System.out.println("Login successfully");
                 return true;
             } else {
-                System.out.println("login failed");
                 return false;
             }
 
@@ -63,6 +61,27 @@ public class Model {
             } catch (SQLException e) {
                 System.out.println("Err close the database: " + e.getMessage());
             }
+        }
+    }
+    public boolean CheckMSSV(String MSSV){
+        Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Cant connect with database");
+            return false;
+        }
+        try {
+            String query = "SELECT * FROM users WHERE MSSV = ?";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1, MSSV);
+            ResultSet  rs = stmt.executeQuery();
+            if(!rs.next()){
+                return false;
+            }
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Err:" + e);
+            return false;
         }
     }
     public boolean Register(String MSSV, String Password, String Name, String Class) {
