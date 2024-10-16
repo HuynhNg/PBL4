@@ -75,7 +75,10 @@ class Server extends Thread {
             String Class = dis.readUTF();
             String password = dis.readUTF();
             Model md = new Model();
-            
+            if(md.CheckMSSV(MSSV)){
+                dos.writeUTF("MSSV already exit");
+                return ;
+            }
             if (md.Register(MSSV, password, Name, Class)) {
                 dos.writeUTF("Register successfully");
             } else {
