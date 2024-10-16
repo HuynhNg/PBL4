@@ -95,9 +95,9 @@ class Server extends Thread {
                 dos.writeUTF("Update failed");
                 return;
             }
-            dos.writeUTF("U");
+            dos.writeUTF("Update successfully");
         } catch (Exception e) {
-            // TODO: handle exception
+            System.out.println("Err:" + e.getMessage());
         }
     }
 }

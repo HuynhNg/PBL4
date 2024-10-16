@@ -16,7 +16,7 @@ public class Model {
 
             // Thiết lập kết nối
             Connection con = DriverManager.getConnection(Database, Username, Password);
-            System.out.println("Connect database successfully");
+            // System.out.println("Connect database successfully");
             return con;
 
         } catch (ClassNotFoundException e) {
@@ -44,7 +44,7 @@ public class Model {
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                System.out.println(rs);
+                // System.out.println(rs);
                 System.out.println("Login successfully");
                 return true;
             } else {

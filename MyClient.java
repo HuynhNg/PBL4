@@ -16,12 +16,15 @@ public class MyClient {
         }
     }
     public static void main(String[] args) {
+        MyClient  client = new MyClient();
+        client.startClient();
+        client.Register();
     }
     public void Login(){
         try {
             dos.writeUTF("Login");
             dos.writeUTF("102220011");
-            dos.writeUTF("12");
+            dos.writeUTF("123");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {
