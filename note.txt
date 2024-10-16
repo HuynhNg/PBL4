@@ -1,0 +1,8 @@
+# Bước 1: Chuyển đến thư mục chứa file Java
+cd D:\2024\PBL4\java
+
+# Bước 2: Biên dịch các file
+javac -cp "D:\2024\PBL4\lib\mysql-connector-java-8.0.29.jar;." *.java
+
+# Bước 3: Chạy chương trình
+java -cp "D:\2024\PBL4\lib\mysql-connector-java-8.0.29.jar;." MyServer
