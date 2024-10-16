@@ -42,29 +42,62 @@ class Server extends Thread {
 
             // Respond based on message content
             if ("Login".equals(message)) {
-                String MSSV = dis.readUTF();
-                String password = dis.readUTF();
-                Model md = new Model();
-                if (md.CheckLogin(MSSV, password)) {
-                    dos.writeUTF("Login Success");
-                } else {
-                    dos.writeUTF("Login Failed");
-                }
+                Login();
             } else if("Register".equals(message)) {
-                String MSSV = dis.readUTF();
-                String Name = dis.readUTF();
-                String Class = dis.readUTF();
-                String password = dis.readUTF();
-                Model md = new Model();
-                if (md.Register(MSSV,password, Name, Class )) {
-                    dos.writeUTF("Register successfully");
-                }
-                else{
-                    dos.writeUTF("Register failed");
-                }
+                Register();
             }
         } catch (IOException e) {
             System.out.println("Error handling client: " + e.getMessage());
+        }
+    }
+
+    public void Login(){
+        try {
+            // Read MSSV and password from client
+            String MSSV = dis.readUTF();
+            String password = dis.readUTF();
+            Model md = new Model();
+            
+            // Check login credentials
+            if (md.CheckLogin(MSSV, password)) {
+                dos.writeUTF("Login Success");
+            } else {
+                dos.writeUTF("Login Failed");
+            }
+        } catch (IOException e) {
+            System.out.println("Error in Login: " + e.getMessage());
+        }
+    }
+    public void Register(){
+        try {
+            String MSSV = dis.readUTF();
+            String Name = dis.readUTF();
+            String Class = dis.readUTF();
+            String password = dis.readUTF();
+            Model md = new Model();
+            
+            if (md.Register(MSSV, password, Name, Class)) {
+                dos.writeUTF("Register successfully");
+            } else {
+                dos.writeUTF("Register failed");
+            }
+        } catch (IOException e) {
+            System.out.println("Error in Register: " + e.getMessage());
+        }
+    }
+    public void UpdateInformation(){
+        try {
+            String MSSV = dis.readUTF();
+            String Name = dis.readUTF();
+            String Class = dis.readUTF();
+            Model md = new Model();
+            if(!md.UpdateInformation(MSSV, Name, Class)){
+                dos.writeUTF("Update failed");
+                return;
+            }
+            dos.writeUTF("U");
+        } catch (Exception e) {
+            // TODO: handle exception
         }
     }
 }

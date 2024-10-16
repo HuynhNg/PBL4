@@ -1,26 +1,44 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 
 public class MyClient {
+    Socket socket;
+    DataInputStream dis;
+    DataOutputStream dos;
+    public void  startClient() {
+        try {
+            socket = new Socket("127.0.0.1", 3000);
+            dis = new DataInputStream(socket.getInputStream()); 
+            dos = new DataOutputStream(socket.getOutputStream());
+        } catch (Exception e) {
+            System.out.println("Err connect to Server: " +  e.getMessage());
+        }
+    }
     public static void main(String[] args) {
-
-        // Kết nối đến máy chủ
-        try 
-        {
-            Socket socket = new Socket("127.0.0.1", 3000);
-            DataInputStream input = new DataInputStream(socket.getInputStream()); 
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-
+    }
+    public void Login(){
+        try {
             dos.writeUTF("Login");
             dos.writeUTF("102220011");
             dos.writeUTF("12");
-            // Nhận dữ liệu từ máy chủ?
-            String message = input.readUTF();
+            String message = dis.readUTF();
             System.out.println("Received from server: " + message);
-        } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Login Err: " + e.getMessage());
+        }
+    }
+    public void Register(){
+        try {
+            dos.writeUTF("Register");
+            dos.writeUTF("102220030");
+            dos.writeUTF("Nguyen Van A");
+            dos.writeUTF("22T_DT2");
+            dos.writeUTF("123");
+            String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+        } catch (Exception e) {
+            // TODO: handle exception
         }
     }
 }
