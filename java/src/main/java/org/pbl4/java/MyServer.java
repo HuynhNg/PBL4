@@ -63,14 +63,23 @@ class Server extends Thread {
                 case "UpdateInformation":
                 	UpdateInformation();
                 	break;
-                case "GetAllFilename":
+                case "GetData":
+                	GetData();
+                	break;
+                case "UpdateData":
+                	UpdateData();
+                	break;
+                case "GetAllFileName":
                 	GetAllFileName();
                 	break;
-                case "GetMyFilename":
-                	GetMyFilename();
+                case "GetMyFileName":
+                	GetMyFileName();
                 	break;
-                case "GetGuestFilename":
-                	GetGuestFilename();
+                case "GetGuestFileName":
+                	GetGuestFileName();
+                	break;
+                case "UploadFile":
+                	UploadFile();
                 	break;
                 default:
                     System.out.println("Unknown command: " + message);
@@ -129,15 +138,14 @@ class Server extends Thread {
             String server = "localhost"; 
             int port = 21;               
             String user = "admin";  
-            String pass = "00000000"; // Đổi thành mật khẩu của bạn
+            String pass = "00000000"; 
 
             FTPClient ftpClient = new FTPClient();
-            // Kết nối đến máy chủ FTP
             ftpClient.connect(server, port);
             boolean login = ftpClient.login(user, pass);
 
             if (login) {
-                String newDirPath = "/" + MSSV; // Tạo thư mục theo tên MSSV
+                String newDirPath = "/" + MSSV; 
 
                 boolean directoryCreated = ftpClient.makeDirectory(newDirPath);
 
@@ -147,7 +155,6 @@ class Server extends Thread {
                     System.out.println("Create folder failder");
                 }
 
-                // Đóng kết nối
                 ftpClient.logout();
             } else {
                 System.out.println("Login successfully");
@@ -269,7 +276,44 @@ class Server extends Thread {
 			System.out.println("Error in Update information: " + e.getMessage());
 		}
     }
-    
+    public void GetData() {
+    	try {
+			String MSSV = dis.readUTF();
+			Model md = new Model();
+			if(!md.CheckMSSV(MSSV)) {
+				dos.writeUTF("MSSV not found");
+				return;
+			}
+			String Data = md.GetData(MSSV);
+			if(Data.equals("ERR")) {
+				dos.writeUTF("Get data is not successful");
+				return;
+			}
+			dos.writeUTF(Data);
+			
+		} catch (Exception e) {
+			System.out.println("Error in get data: " + e.getMessage());
+		}
+    }
+    public void UpdateData() {
+    	try {
+			String MSSV = dis.readUTF();
+			Double Data = Double.parseDouble(dis.readUTF());
+			Model md = new Model();
+			if(!md.CheckMSSV(MSSV)) {
+				dos.writeUTF("MSSV not found");
+				return;
+			}
+			if(!md.UpdateData(MSSV, Data)) {
+				dos.writeUTF("Update data is not successful");
+				return;
+			}
+			dos.writeUTF("Update successfull");
+			
+		} catch (Exception e) {
+			System.out.println("Error in get data: " + e.getMessage());
+		}
+    }
     
     public void GetAllFileName() {
     	try {
@@ -280,7 +324,8 @@ class Server extends Thread {
 				return;
 			}
 			String FileName = md.GetAllFileNameByMSSV(MSSV);
-			if(!FileName.equals("ERR")) {
+			System.out.print(FileName);
+			if(FileName.equals("ERR")) {
 				dos.writeUTF("Get filename is not successful");
 				return;
 			}
@@ -290,7 +335,7 @@ class Server extends Thread {
 			System.out.println("Error in Update password: " + e.getMessage());
 		}
     }
-    public void GetMyFilename() {
+    public void GetMyFileName() {
     	try {
     		String MSSV = dis.readUTF();
 			Model md = new Model();
@@ -308,7 +353,7 @@ class Server extends Thread {
 			System.out.println("Error in Update password: " + e.getMessage());
 		}
     }
-    public void GetGuestFilename() {
+    public void GetGuestFileName() {
     	try {
     		String MSSV = dis.readUTF();
 			Model md = new Model();
@@ -324,6 +369,41 @@ class Server extends Thread {
 			dos.writeUTF(Filename);
 		} catch (Exception e) {
 			System.out.println("Error in Update password: " + e.getMessage());
+		}
+    }
+    
+    public void UploadFile() {
+    	try {
+			String MSSV = dis.readUTF();
+			String FileName = dis.readUTF();
+			Double Data = Double.parseDouble(dis.readUTF());
+			Model md = new Model();
+			if(!md.CheckMSSV(MSSV)) {
+				dos.writeUTF("MSSV not found");
+				return;
+			}
+			if(!md.AddFile(FileName,Data)) {
+				dos.writeUTF("Upload failed");
+				return;
+			}
+			String FileID = md.GetFileID(FileName);
+			if(!md.AddAutho(MSSV, FileID, 0)) {
+				dos.writeUTF("Upload failed");
+				return;
+			}
+			String Da = md.GetData(MSSV);
+			if(Da.equals("ERR")) {
+				dos.writeUTF("Upload failed");
+				return;
+			}
+			if(!md.UpdateData(MSSV, Double.parseDouble(Da)+ Data)) {
+				dos.writeUTF("Upload failed");
+				return;
+			}
+			dos.writeUTF("Upload successfull");
+			
+		} catch (Exception e) {
+			System.out.println("Error in Upload file: " + e.getMessage());
 		}
     }
 }

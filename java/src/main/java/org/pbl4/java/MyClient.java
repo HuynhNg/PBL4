@@ -20,7 +20,11 @@ public class MyClient {
     public static void main(String[] args) {
         MyClient  client = new MyClient();
         client.startClient();
-        client.Register();;
+//        client.Register();
+//        client.GetFile();
+//        client.GetData();
+//        client.UpdateData();
+        client.UploadFile();
     }
     public void Login(){
         try {
@@ -40,6 +44,49 @@ public class MyClient {
             dos.writeUTF("Nguyen Van D");
             dos.writeUTF("22T_DT2");
             dos.writeUTF("123");
+            String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+    public void GetFile() {
+    	try {
+            dos.writeUTF("GetGuestFileName");
+            dos.writeUTF("102220011");
+            String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+    public void GetData() {
+    	try {
+            dos.writeUTF("GetData");
+            dos.writeUTF("102220024");
+            String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+    public void UpdateData() {
+    	try {
+            dos.writeUTF("UpdateData");
+            dos.writeUTF("102220024");
+            dos.writeUTF("80.8");
+            String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+    public void UploadFile() {
+    	try {
+            dos.writeUTF("UploadFile");
+            dos.writeUTF("102220024");
+            dos.writeUTF("a.docx");
+            dos.writeUTF("80.8");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {
