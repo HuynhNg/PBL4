@@ -54,9 +54,6 @@ class Server extends Thread {
                 case "Register":
                     Register();
                     break;
-                case "UpdatePassword":
-                	UpdatePassword();
-                	break;
                 default:
                     System.out.println("Unknown command: " + message);
                     break;
@@ -198,45 +195,6 @@ class Server extends Thread {
 //            System.out.println("Error in CreateUser: " + e.getMessage());
 //        }
 //    }
-    public void UpdatePassword() {
-    	try {
-			String MSSV = dis.readUTF();
-			String Password = dis.readUTF();
-			Model md = new Model();
-			if(!md.CheckMSSV(MSSV)) {
-				dos.writeUTF("MSSV not found");
-				return;
-			}
-			if(!md.UpdatePassword(MSSV, Password)) {
-				dos.writeUTF("Update password is not succesful");
-				return;
-			}
-			dos.writeUTF("Update password successfully");
-		} catch (Exception e) {
-			System.out.println("Error in Update password: " + e.getMessage());
-		}
-    }
-    
-    
-    public void GetAllFileName() {
-    	try {
-			String MSSV = dis.readUTF();
-			Model md = new Model();
-			if(!md.CheckMSSV(MSSV)) {
-				dos.writeUTF("MSSV not found");
-				return;
-			}
-			String FileName = md.GetAllFileNameByMSSV(MSSV);
-			if(!FileName.equals("ERR")) {
-				dos.writeUTF("Get filename is not successful");
-				return;
-			}
-			dos.writeUTF(FileName);
-			
-		} catch (Exception e) {
-			System.out.println("Error in Update password: " + e.getMessage());
-		}
-    }
 
 }
 

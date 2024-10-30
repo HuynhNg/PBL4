@@ -215,7 +215,6 @@ public class Model {
                 System.out.println("Err close the database: " + e.getMessage());
             }
         }
-    } 
-    
+    }    
 }
 

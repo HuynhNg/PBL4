@@ -84,14 +84,6 @@ public class Model {
         } catch (Exception e) {
             System.err.println("Err:" + e);
             return false;
-        }finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                System.out.println("Err close the database: " + e.getMessage());
-            }
         }
     }
     public boolean Register(String MSSV, String Password, String Name, String Class) {
@@ -116,40 +108,6 @@ public class Model {
         } catch (Exception e) {
             System.err.println("Err:" + e);
             return false;
-        }finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                System.out.println("Err close the database: " + e.getMessage());
-            }
-        }
-    }
-    public boolean UpdatePassword(String MSSV, String Password) {
-    	Connection con = GetConnection();
-    	if (con == null) {
-            System.out.println("Cant connect with database");
-            return false;
-        }
-    	try {
-			String query ="Update users set Passowrd = ? where MSSV = ?";
-			PreparedStatement pstmt = con.prepareStatement(query);
-			pstmt.setString(1, Password);
-			pstmt.setString(2, MSSV);
-			pstmt.executeUpdate();
-    		return true;
-		} catch (Exception e) {
-			System.err.println("Err Password:" + e);
-            return false;
-		}finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                System.out.println("Err close the database: " + e.getMessage());
-            }
         }
     }
     public boolean UpdateInformation(String MSSV,  String Name, String Class) {
@@ -170,14 +128,6 @@ public class Model {
         } catch (Exception e) {
             System.err.println("Err UpdateInfor:" + e);
             return false;
-        }finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                System.out.println("Err close the database: " + e.getMessage());
-            }
         }
     }
 
@@ -206,16 +156,7 @@ public class Model {
         } catch (Exception e) {
             System.out.println("ERR getFile : " + e.getMessage());
             return "ERR";
-        }finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                System.out.println("Err close the database: " + e.getMessage());
-            }
         }
-    } 
-    
+    }    
 }
 
