@@ -261,6 +261,7 @@ class Server extends Thread {
 			}
 			dos.writeUTF(Filename);
 		} catch (Exception e) {
+			// TODO: handle exception
 			System.out.println("Error in Update password: " + e.getMessage());
 		}
     }
@@ -279,6 +280,7 @@ class Server extends Thread {
 			}
 			dos.writeUTF(Filename);
 		} catch (Exception e) {
+			// TODO: handle exception
 			System.out.println("Error in Update password: " + e.getMessage());
 		}
     }

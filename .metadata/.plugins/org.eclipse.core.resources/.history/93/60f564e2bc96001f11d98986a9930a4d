@@ -57,15 +57,6 @@ class Server extends Thread {
                 case "UpdatePassword":
                 	UpdatePassword();
                 	break;
-                case "GetAllFilename":
-                	GetAllFileName();
-                	break;
-                case "GetMyFilename":
-                	GetMyFilename();
-                	break;
-                case "GetGuestFilename":
-                	GetGuestFilename();
-                	break;
                 default:
                     System.out.println("Unknown command: " + message);
                     break;
@@ -246,41 +237,6 @@ class Server extends Thread {
 			System.out.println("Error in Update password: " + e.getMessage());
 		}
     }
-    public void GetMyFilename() {
-    	try {
-    		String MSSV = dis.readUTF();
-			Model md = new Model();
-			if(!md.CheckMSSV(MSSV)) {
-				dos.writeUTF("MSSV not found");
-				return;
-			}
-			String Filename = md.GetMyFileName(MSSV);
-			if(Filename.equals("ERR")) {
-				dos.writeUTF("Get filename is not successful");
-				return;
-			}
-			dos.writeUTF(Filename);
-		} catch (Exception e) {
-			System.out.println("Error in Update password: " + e.getMessage());
-		}
-    }
-    public void GetGuestFilename() {
-    	try {
-    		String MSSV = dis.readUTF();
-			Model md = new Model();
-			if(!md.CheckMSSV(MSSV)) {
-				dos.writeUTF("MSSV not found");
-				return;
-			}
-			String Filename = md.GetGuestFileName(MSSV);
-			if(Filename.equals("ERR")) {
-				dos.writeUTF("Get filename is not successful");
-				return;
-			}
-			dos.writeUTF(Filename);
-		} catch (Exception e) {
-			System.out.println("Error in Update password: " + e.getMessage());
-		}
-    }
+
 }
 
