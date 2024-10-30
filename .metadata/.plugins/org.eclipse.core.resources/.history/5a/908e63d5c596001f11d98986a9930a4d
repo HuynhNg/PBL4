@@ -57,12 +57,6 @@ class Server extends Thread {
                 case "UpdatePassword":
                 	UpdatePassword();
                 	break;
-                case "GetInformation":
-                	GetInformation();
-                	break;
-                case "UpdateInformation":
-                	UpdateInformation();
-                	break;
                 case "GetAllFilename":
                 	GetAllFileName();
                 	break;
@@ -231,25 +225,7 @@ class Server extends Thread {
 			System.out.println("Error in Update password: " + e.getMessage());
 		}
     }
-    public void GetInformation() {
-    	try {
-			String MSSV = dis.readUTF();
-			Model md = new Model();
-			if(!md.CheckMSSV(MSSV)) {
-				dos.writeUTF("MSSV not found");
-				return;
-			}
-			String Infor = md.GetInformation(MSSV);
-			if(Infor.equals("ERR")) {
-				dos.writeUTF("Get failed");
-				return;
-			}
-			dos.writeUTF(Infor);
-			
-		} catch (Exception e) {
-			System.out.println("Error in get information: " + e.getMessage());		
-		}
-    }
+    
     public void UpdateInformation() {
     	try {
 			String MSSV = dis.readUTF();
