@@ -408,39 +408,6 @@ public class Model {
             }
         }
     } 
-    
-    public String GetFilenameByFileID(String FileID) {
-    	Connection con = GetConnection();
-        if (con == null) {
-            System.out.println("Cant connect with database");
-            return "ERR";
-        }
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            String query = "SELECT FileName FROM files WHERE FileID = ?";
-            pstmt = con.prepareStatement(query);
-            pstmt.setString(1, FileID);
-            rs = pstmt.executeQuery();
-            if (rs.next()) { 
-                return rs.getString("FileName");
-            } 
-            return "ERR";
-
-        } catch (Exception e) {
-            System.out.println("ERR get Filename by FileID : " + e.getMessage());
-            return "ERR";
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                System.out.println("Err close the database: " + e.getMessage());
-            }
-        }
-    }
-    
     public String GetMyFileName(String MSSV) {
     	Connection con = GetConnection();
     	if (con == null) {

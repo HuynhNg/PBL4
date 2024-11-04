@@ -418,7 +418,7 @@ public class Model {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            String query = "SELECT FileName FROM files WHERE FileID = ?";
+            String query = "SELECT FileName FROM file WHERE FileID = ?";
             pstmt = con.prepareStatement(query);
             pstmt.setString(1, FileID);
             rs = pstmt.executeQuery();

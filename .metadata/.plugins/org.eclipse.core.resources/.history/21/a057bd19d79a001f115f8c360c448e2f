@@ -386,7 +386,7 @@ class Server extends Thread {
 			Model md = new Model();
 			String MSSV = md.GetMSSVbyFileID(FileID);
 			String FileName = md.GetFilenameByFileID(FileID);
-			String FilePath = "D:\\2024\\PBL4\\FileData\\" + MSSV + "\\" + FileName ;
+			String FilePath = "D:\\2024\\PBL4\\FileData\\" + MSSV + "\\" + FileName + ".zip";
 			sendfile(FilePath);
 			
 		} catch (Exception e) {

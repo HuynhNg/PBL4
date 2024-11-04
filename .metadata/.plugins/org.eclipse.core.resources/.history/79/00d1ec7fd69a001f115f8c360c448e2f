@@ -29,9 +29,9 @@ public class MyClient {
 //        client.GetData();
 //        client.UpdateData();
 //        client.UploadFile();
-        String savePath = "D:\\2024\\PBL4\\FileData\\received_file.zip";
-        client.ReceiveFile(savePath);
-//        client.GetAllGuest();
+//        String savePath = "D:\\2024\\PBL4\\FileData\\received_file.zip";
+//        client.ReceiveFile(savePath);
+        client.GetAllGuest();
     }
     public void Login(){
         try {
@@ -117,8 +117,7 @@ public class MyClient {
     }
     public void ReceiveFile(String savePath) {
         try {
-        	dos.writeUTF("DownloadFile");
-        	dos.writeUTF("1");
+        	dos.writeUTF("Sendfile");
             InputStream is = socket.getInputStream();
             BufferedInputStream bis = new BufferedInputStream(is);
             FileOutputStream fos = new FileOutputStream(Paths.get(savePath).toString());

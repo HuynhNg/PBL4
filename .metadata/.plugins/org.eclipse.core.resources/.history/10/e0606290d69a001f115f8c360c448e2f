@@ -29,9 +29,9 @@ public class MyClient {
 //        client.GetData();
 //        client.UpdateData();
 //        client.UploadFile();
-        String savePath = "D:\\2024\\PBL4\\FileData\\received_file.zip";
-        client.ReceiveFile(savePath);
-//        client.GetAllGuest();
+//        String savePath = "D:\\2024\\PBL4\\FileData\\received_file.zip";
+//        client.ReceiveFile(savePath);
+        client.GetAllGuest();
     }
     public void Login(){
         try {

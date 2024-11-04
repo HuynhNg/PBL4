@@ -93,8 +93,8 @@ class Server extends Thread {
                 case "DelFile":
                 	DelFile();
                 	break;
-                case "DownloadFile":
-                	DownloadFile();
+                case "Sendfile":
+                	sendfile();
                 	break;
                 case "AddGuest":
                 	AddGuest();
@@ -358,9 +358,9 @@ class Server extends Thread {
         return zipFilePath;
     }
     
-    public void sendfile(String FilePath) {
+    public void sendfile() {
     	try {
-            String zipFilePath = zipFile(FilePath); 
+            String zipFilePath = zipFile("D:\\2024\\PBL4\\FileData\\102220024\\Bài-Giảng-Chương-Trình-Dịch.pdf"); // Truyền đúng tham số filepath
             File file = new File(zipFilePath);
 
             try (FileInputStream fis = new FileInputStream(file);
@@ -380,19 +380,6 @@ class Server extends Thread {
         }
     }
     
-    public void DownloadFile() {
-    	try {
-			String FileID = dis.readUTF();
-			Model md = new Model();
-			String MSSV = md.GetMSSVbyFileID(FileID);
-			String FileName = md.GetFilenameByFileID(FileID);
-			String FilePath = "D:\\2024\\PBL4\\FileData\\" + MSSV + "\\" + FileName ;
-			sendfile(FilePath);
-			
-		} catch (Exception e) {
-			 System.out.println("Lỗi khi gửi file: " + e.getMessage());
-		}
-    }
     
     public void UploadFile() {
     	try {
