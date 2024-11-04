@@ -126,6 +126,34 @@ public class Model {
             }
         }
     }
+    public String GetPassword(String MSSV) {
+    	Connection con = GetConnection();
+    	if (con == null) {
+            System.out.println("Cant connect with database");
+            return "ERR";
+        }
+    	try {
+			String query = "Select Password from users where MSSV = ?";
+			PreparedStatement pstmt = con.prepareStatement(query);
+			pstmt.setString(1, MSSV);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				return rs.getString("Password");
+			}
+			return "ERR";
+		} catch (Exception e) {
+			System.err.println("Err Password:" + e);
+            return "ERR";
+		}finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+    }
     public boolean UpdatePassword(String MSSV, String Password) {
     	Connection con = GetConnection();
     	if (con == null) {
@@ -133,7 +161,7 @@ public class Model {
             return false;
         }
     	try {
-			String query ="Update users set Passowrd = ? where MSSV = ?";
+			String query ="Update users set Password = ? where MSSV = ?";
 			PreparedStatement pstmt = con.prepareStatement(query);
 			pstmt.setString(1, Password);
 			pstmt.setString(2, MSSV);
@@ -161,7 +189,7 @@ public class Model {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            String query = "SELECT * FROM information WHERE MSSV = ?";
+            String query = "SELECT MSSV, Name, Class, Data FROM information WHERE MSSV = ?";
             pstmt = con.prepareStatement(query);
             pstmt.setString(1, MSSV);
             rs = pstmt.executeQuery();
@@ -235,7 +263,70 @@ public class Model {
             pstmt.setString(1, MSSV);
             rs = pstmt.executeQuery();
 
-            StringBuilder result = new StringBuilder();
+            if (rs.next()) { 
+                return rs.getString("Data");
+            } 
+            return "ERR";
+
+        } catch (Exception e) {
+            System.out.println("ERR get data : " + e.getMessage());
+            return "ERR";
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (con != null) con.close();
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+    }
+    
+    public String GetMSSVbyFileID(String FileID) {
+    	Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Cant connect with database");
+            return "ERR";
+        }
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            String query = "SELECT MSSV FROM authorization WHERE FileID = ?";
+            pstmt = con.prepareStatement(query);
+            pstmt.setString(1, FileID);
+            rs = pstmt.executeQuery();
+            if (rs.next()) { 
+                return rs.getString("MSSV");
+            } 
+            return "ERR";
+
+        } catch (Exception e) {
+            System.out.println("ERR get MSSV by FileID : " + e.getMessage());
+            return "ERR";
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (con != null) con.close();
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+    }
+    
+    public String GetDatabyFileID(String FileID) {
+    	Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Cant connect with database");
+            return "ERR";
+        }
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            String query = "SELECT Data FROM files WHERE FileID = ?";
+            pstmt = con.prepareStatement(query);
+            pstmt.setString(1, FileID);
+            rs = pstmt.executeQuery();
             if (rs.next()) { 
                 return rs.getString("Data");
             } 
@@ -388,30 +479,36 @@ public class Model {
             }
         }
     }
-    public String GetFileID(String FileName) {
-    	Connection con = GetConnection();
-    	if (con == null) {
+    public String GetFileID(String FileName, String MSSV) {
+        Connection con = GetConnection();
+        if (con == null) {
             System.out.println("Can't connect with database");
             return "ERR";
         }
-    	try {
-    		String query = "Select FileID from Files where FileName = ?";
-    		PreparedStatement pstmt = con.prepareStatement(query);
-    		pstmt.setString(1, FileName);
-    		ResultSet rs = pstmt.executeQuery();
-    		while(rs.next()) {
-    			return rs.getString("FileID");
-    		}
-    		return "File not found";
-			
-		} catch (Exception e) {
-            System.out.println("ERR getFile : " + e.getMessage());
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            String query = "SELECT Files.FileID " +
+                           "FROM Files " +
+                           "JOIN authorization ON Files.FileID = authorization.FileID " +
+                           "WHERE Files.FileName = ? AND authorization.MSSV = ?";
+            pstmt = con.prepareStatement(query);
+            pstmt.setString(1, FileName);
+            pstmt.setString(2, MSSV);
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getString("FileID");
+            }
+            return "File not found";
+        } catch (Exception e) {
+            System.out.println("ERR getFile: " + e.getMessage());
             return "ERR";
-        }finally {
+        } finally {
             try {
-                if (con != null) {
-                    con.close();
-                }
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (con != null) con.close();
             } catch (SQLException e) {
                 System.out.println("Err close the database: " + e.getMessage());
             }
@@ -435,7 +532,7 @@ public class Model {
 		     return true;
 			
 		} catch (Exception e) {
-            System.out.println("ERR getFile : " + e.getMessage());
+            System.out.println("ERR add author : " + e.getMessage());
             return false;
         }finally {
             try {
@@ -447,6 +544,68 @@ public class Model {
             }
         }
     }
+    public boolean DelAutho(String MSSV, String FileID) {
+    	Connection con = GetConnection();
+    	if (con == null) {
+            System.out.println("Can't connect with database");
+            return false;
+        }
+    	try {
+    		String query = "Delete from authorization  where MSSV =? and FileID = ?";
+		     PreparedStatement pstmt = con.prepareStatement(query);
+		     pstmt.setString(1, MSSV);
+		     pstmt.setString(2, FileID);
+		     pstmt.executeUpdate();
+		     return true;
+			
+		} catch (Exception e) {
+            System.out.println("ERR delauthor : " + e.getMessage());
+            return false;
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+    }
+    
+    public String GetAllGuest(String FileID) {
+    	Connection con = GetConnection();
+    	if (con == null) {
+            System.out.println("Can't connect with database");
+            return "ERR";
+        }
+    	try {
+    		String query = "Select MSSV from authorization  where FileID = ? and Role = 1";
+		     PreparedStatement pstmt = con.prepareStatement(query);
+		     pstmt.setString(1, FileID);
+		     ResultSet rs  = pstmt.executeQuery();
+		     String result = "";
+		     while (rs.next()) {
+	                result += rs.getString("MSSV") + ",";
+	            }
+	            if (result.endsWith(",")) {
+	                result = result.substring(0, result.length() - 1);
+	            }
+	         return result;
+			
+		} catch (Exception e) {
+            System.out.println("ERR delauthor : " + e.getMessage());
+            return "ERR";
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+    }
+    
     public boolean AddFile(String FileName, Double Data) {
     	Connection con = GetConnection();
     	if (con == null) {
@@ -463,6 +622,33 @@ public class Model {
 			
 		} catch (Exception e) {
             System.out.println("ERR addFile : " + e.getMessage());
+            return false;
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+    }
+    
+    public boolean DelFile(String FileID) {
+    	Connection con = GetConnection();
+    	if (con == null) {
+            System.out.println("Can't connect with database");
+            return false;
+        }
+    	try {
+    		String query = "Delete from file FileID = ?)";
+		     PreparedStatement pstmt = con.prepareStatement(query);
+		     pstmt.setString(1, FileID);
+		     pstmt.executeUpdate();
+		     return true;
+			
+		} catch (Exception e) {
+            System.out.println("ERR DelFile : " + e.getMessage());
             return false;
         }finally {
             try {

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;&apos; to &apos;org.pbl4.java.Server.UpdatePassword()&apos;&#x0D;&#x0A;- Original project: &apos;java&apos;&#x0D;&#x0A;- Destination element: &apos;org.pbl4.java.Server.UpdatePassword()&apos;&#x0D;&#x0A;- Original element: &apos;org.pbl4.java.Server.UpdatePassword()&apos;" description="Copy method" destination="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;org.pbl4.java{MyServer.java[Server~UpdatePassword" element1="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;org.pbl4.java{MyServer.java[Server~UpdatePassword" flags="589830" id="org.eclipse.jdt.ui.copy" members="1" policy="org.eclipse.jdt.ui.copyMembers" stamp="1730659047967" version="1.0"/>
+</session>
