@@ -1,0 +1,117 @@
+package org.pbl4.java;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class TestServer {
+
+    public static void main(String[] args) throws IOException {
+        ServerSocket server = new ServerSocket(3000);
+        System.out.println("Server is on port 3000...");
+        
+        while (true) {
+            try {
+                Socket socket = server.accept();
+                System.out.println(socket.getInetAddress() + " Client connected");
+                Test tmp = new Test(socket);
+                tmp.start();
+            } catch (IOException e) {
+                System.out.println("Error while accepting client connection: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+class Test extends Thread {
+    private Socket socket;
+
+    public Test(Socket socket) throws IOException {
+        this.socket = socket;
+//        this.dis = new DataInputStream(socket.getInputStream());
+//        this.dos = new DataOutputStream(socket.getOutputStream());
+    }
+
+    @Override
+    public void run() {
+        try {
+        	DataInputStream dis = new DataInputStream(socket.getInputStream());
+            String message = dis.readUTF();
+            System.out.println("Received from client: " + message);
+            if ("UploadFile".equals(message)) {
+                UploadFile();
+            }
+            dis.close();
+        } catch (Exception e) {
+            System.out.println("Error handling client: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                System.out.println("Error closing socket: " + e.getMessage());
+            }
+        }
+    }
+
+    public boolean ReceiveFile(String savePath) {
+        System.out.println("Bắt đầu nhận file và lưu tại: " + savePath);
+        try (BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(savePath))) {
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = bis.read(buffer)) != -1) {
+                bos.write(buffer, 0, bytesRead);
+            }
+            bos.flush();
+            System.out.println("Đã nhận file và lưu tại: " + savePath);
+            return true;
+        } catch (IOException e) {
+            System.out.println("Lỗi khi nhận file: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void UploadFile() {
+        try {
+        	DataInputStream dis = new DataInputStream(socket.getInputStream());
+        	DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+            String MSSV = dis.readUTF();
+            String fileName = dis.readUTF();
+            double data = Double.parseDouble(dis.readUTF());
+
+            String savePath = "D:\\2024\\PBL4\\FileData\\ReceiveFile.zip";
+            System.out.println("Đang xử lý file" );
+
+            System.out.println("Bắt đầu nhận file và lưu tại: " + savePath);
+            try (BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+                 BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(savePath))) {
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = bis.read(buffer)) != -1) {
+                    bos.write(buffer, 0, bytesRead);
+                }
+                bos.flush();
+                System.out.println("Đã nhận file và lưu tại: " + savePath);
+            } catch (IOException e) {
+                System.out.println("Lỗi khi nhận file: " + e.getMessage());
+                e.printStackTrace();
+            }
+            System.out.println("Upload thành công file ");
+            dos.writeUTF("Upload successful");
+            dos.flush();
+        } catch (IOException e) {
+            System.out.println("Error in Upload file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
