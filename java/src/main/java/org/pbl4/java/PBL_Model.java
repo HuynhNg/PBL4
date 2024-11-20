@@ -1054,6 +1054,36 @@ public class PBL_Model {
         }
 	}
 	
+	public boolean CheckFolderByFolderID(int FolderID) {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Cant connect with database");
+            return false;
+        }
+        try {
+            String query = "SELECT * FROM folders WHERE FolderID = ?";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setInt(1, FolderID);
+            ResultSet  rs = stmt.executeQuery();
+            if(!rs.next()){
+                return false;
+            }
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Err:" + e);
+            return false;
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
 	public boolean CheckFolderExits(int ParentID, String FolderName) {
 		Connection con = GetConnection();
         if (con == null) {
@@ -1114,4 +1144,181 @@ public class PBL_Model {
         }
 	}
 	
+	public boolean CheckFolderRole(String MSSV, int FolderID) {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Cant connect with database");
+            return false;
+        }
+        try {
+            String query = "SELECT * FROM folderrole WHERE MSSV= ? and FolderID = ?";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1, MSSV);
+            stmt.setInt(2, FolderID);
+            ResultSet  rs = stmt.executeQuery();
+            if(!rs.next()){
+                return false;
+            }
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Err:" + e);
+            return false;
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public boolean CheckFileExits(String FileName, int FolderID) {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Cant connect with database");
+            return false;
+        }
+        try {
+            String query = "SELECT * FROM files WHERE FolderID = ? and FileName = ?";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setInt(1, FolderID);
+            stmt.setString(2, FileName);
+            ResultSet  rs = stmt.executeQuery();
+            if(!rs.next()){
+                return false;
+            }
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Err:" + e);
+            return false;
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public int GetFolderIDByFileID(int FileID) {
+		Connection con = GetConnection();
+		if(con == null) {
+			System.out.println("Cant connect with database");
+			return -1;
+		}
+		try {
+			String query = "Select FolderID from Files where FileID = ?";
+			PreparedStatement pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, FileID);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				return rs.getInt("FolderID");
+			}
+			return -1;
+		} catch (Exception e) {
+			System.err.println("Err: " + e);
+            return -1;
+		}finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public String GetFileNameByFileID(int FileID) {
+		Connection con = GetConnection();
+		if(con == null) {
+			System.out.println("Cant connect with database");
+			return "ERR";
+		}
+		try {
+			String query = "Select FileName from Files where FileID = ?";
+			PreparedStatement pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, FileID);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				return rs.getString("FileName");
+			}
+			return "ERR";
+		} catch (Exception e) {
+			System.err.println("Err: " + e);
+            return "ERR";
+		}finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public String GetMSSVByFolderID(int FolderID) {
+		Connection con = GetConnection();
+		if(con == null) {
+			System.out.println("Cant connect with database");
+			return "ERR";
+		}
+		try {
+			String query = "Select MSSV from folderrole where FolderID = ? and Role = 0";
+			PreparedStatement pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, FolderID);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				return rs.getString("MSSV");
+			}
+			return "ERR";
+		} catch (Exception e) {
+			System.err.println("Err: " + e);
+            return "ERR";
+		}finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public String GetMSSVByFileID(int FileID) {
+		Connection con = GetConnection();
+		if(con == null) {
+			System.out.println("Cant connect with database");
+			return "ERR";
+		}
+		try {
+			String query = "Select MSSV from filerole where FileID = ? and Role = 0";
+			PreparedStatement pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, FileID);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				return rs.getString("MSSV");
+			}
+			return "ERR";
+		} catch (Exception e) {
+			System.err.println("Err: " + e);
+            return "ERR";
+		}finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
 }

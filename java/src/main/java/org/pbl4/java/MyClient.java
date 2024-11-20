@@ -39,19 +39,22 @@ public class MyClient {
 //        client.CreateFolder();
 //      client.ChangeFolderName();
 //        	client.DeleteFolder();
+//        client.ShareFolder();
+//        client.DaleteShareFolder();
+        client.DeleteFile();
 //        client.GetData();
 //        client.UpdateData();
 //        client.UploadFile();
 //        String savePath = "D:\\2024\\PBL4\\FileData\\received_file.zip";
 //        client.ReceiveFile(savePath);
 //        client.GetAllGuest();
-//        client.sendFile();;
+//        client.sendFile();
 
     }
     public void Login(){
         try {
             dos.writeUTF("Login");
-            dos.writeUTF("102220024");
+            dos.writeUTF("102220025");
             dos.writeUTF("123");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
@@ -62,9 +65,9 @@ public class MyClient {
     public void Register(){
         try {
             dos.writeUTF("Register");
-            dos.writeUTF("102220051");
-            dos.writeUTF("Nguyen Van D");
-            dos.writeUTF("22T_DT4");
+            dos.writeUTF("102220025");
+            dos.writeUTF("Nguyen Van A");
+            dos.writeUTF("22T_KDHL");
             dos.writeUTF("123");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
@@ -136,8 +139,8 @@ public class MyClient {
     public void CreateFolder() {
     	try {
     		dos.writeUTF("CreateFolder");
-            dos.writeUTF("a");
-            dos.writeUTF("18");
+            dos.writeUTF("abc");
+            dos.writeUTF("2");
             String message = dis.readUTF();
             System.out.println("Folder: " + message);
             String message1 = dis.readUTF();
@@ -161,13 +164,49 @@ public class MyClient {
     public void DeleteFolder() {
     	try {
     		dos.writeUTF("DeleteFolder");
-            dos.writeUTF("18");
+            dos.writeUTF("15");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {
             // TODO: handle exception
         }
     }
+    
+    public void ShareFolder() {
+    	try {
+    		dos.writeUTF("ShareFolder");
+            dos.writeUTF("2");
+            dos.writeUTF("102220025");
+            String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+    
+    public void DaleteShareFolder() {
+    	try {
+    		dos.writeUTF("DeleteShareFolder");
+            dos.writeUTF("20");
+            dos.writeUTF("102220025");
+            String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+    
+    public void DeleteFile() {
+    	try {
+			dos.writeUTF("DeleteFile");
+			dos.writeUTF("9");
+			String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+    }
+    
     public void GetData() {
     	try {
             dos.writeUTF("GetData");
@@ -240,7 +279,7 @@ public class MyClient {
     public void sendFile() {
         try {
             // Đường dẫn file
-            File file = new File("D:\\2024\\PBL4\\FileData\\102220024\\Đề_1_XLTHS.pdf.zip");
+            File file = new File("D:\\2024\\PBL4\\Đề tài\\TanKhoi - Danh sach De tai PBL HeDieuHanh&MMT.docx.zip");
             if (!file.exists()) {
                 System.out.println("File không tồn tại: " + file.getAbsolutePath());
                 return;
@@ -251,8 +290,9 @@ public class MyClient {
 
             // Gửi thông tin file
             dos.writeUTF("UploadFile"); // Loại yêu cầu
-            dos.writeUTF("102220011"); // MSSV
-            dos.writeUTF(file.getName()); // Tên file
+            dos.writeUTF("102220024"); // MSSV
+            dos.writeUTF("TanKhoi - Danh sach De tai PBL HeDieuHanh&MMT.docx"); // Tên file
+            dos.writeUTF("2");
             dos.writeUTF(String.valueOf(file.length())); // Kích thước file
 
             // Gửi dữ liệu file

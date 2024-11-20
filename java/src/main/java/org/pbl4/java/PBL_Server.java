@@ -74,12 +74,18 @@ class PBLServer extends Thread{
                 case "DeleteFolder":
                 	DeleteFolder();
                 	break;
-//                case "UploadFile":
-//                	UploadFile();
-//                	break;
-//                case "DelFile":
-//                	DelFile();
-//                	break;
+                case "ShareFolder":
+                	ShareFolder();
+                	break;
+                case "DeleteShareFolder":
+                	DeleteShareFolder();
+                	break;
+                case "UploadFile":
+                	UploadFile();
+                	break;
+                case "DeleteFile":
+                	DeleteFile();
+                	break;
 //                case "DownloadFile":
 //                	DownloadFile();
 //                	break;
@@ -211,6 +217,42 @@ class PBLServer extends Thread{
 		try {
 			PBL_Controller ctl = new PBL_Controller(socket);
 			ctl.DeleteFolder();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
+	public void ShareFolder() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.ShareFolder();;
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
+	public void DeleteShareFolder() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.DeleteShareFolder();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
+	public void UploadFile() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.UploadFile();;
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
+	public void DeleteFile() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.DeleteFile();
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
