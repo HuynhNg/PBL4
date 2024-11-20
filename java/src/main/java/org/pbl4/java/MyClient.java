@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.nio.file.Paths;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 
 public class MyClient {
@@ -41,14 +43,17 @@ public class MyClient {
 //        	client.DeleteFolder();
 //        client.ShareFolder();
 //        client.DaleteShareFolder();
-        client.DeleteFile();
+//        client.DeleteFile();
+//        client.RenameFile();
 //        client.GetData();
 //        client.UpdateData();
 //        client.UploadFile();
 //        String savePath = "D:\\2024\\PBL4\\FileData\\received_file.zip";
 //        client.ReceiveFile(savePath);
+//        client.AddGuest();
 //        client.GetAllGuest();
 //        client.sendFile();
+//        client.UploadFolder();
 
     }
     public void Login(){
@@ -113,7 +118,7 @@ public class MyClient {
     }
     public void GetFile() {
     	try {
-            dos.writeUTF("GetGuestFileName");
+            dos.writeUTF("GetAllFileName");
             dos.writeUTF("102220024");
             String message = dis.readUTF();
             System.out.println("Folder: " + message);
@@ -126,7 +131,7 @@ public class MyClient {
     public void GetAllByFolderID() {
     	try {
     		dos.writeUTF("GetAllByFolderID");
-            dos.writeUTF("15");
+            dos.writeUTF("2");
             String message = dis.readUTF();
             System.out.println("Folder: " + message);
             String message1 = dis.readUTF();
@@ -139,8 +144,9 @@ public class MyClient {
     public void CreateFolder() {
     	try {
     		dos.writeUTF("CreateFolder");
-            dos.writeUTF("abc");
-            dos.writeUTF("2");
+    		dos.writeUTF("102220024");
+            dos.writeUTF("Note");
+            dos.writeUTF("1");
             String message = dis.readUTF();
             System.out.println("Folder: " + message);
             String message1 = dis.readUTF();
@@ -152,7 +158,8 @@ public class MyClient {
     public void ChangeFolderName() {
     	try {
     		dos.writeUTF("ChangeFolderName");
-            dos.writeUTF("17");
+    		dos.writeUTF("102220024");
+            dos.writeUTF("5");
             dos.writeUTF("aaaaaa");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
@@ -164,7 +171,8 @@ public class MyClient {
     public void DeleteFolder() {
     	try {
     		dos.writeUTF("DeleteFolder");
-            dos.writeUTF("15");
+    		dos.writeUTF("102220024");
+            dos.writeUTF("5");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {
@@ -175,7 +183,8 @@ public class MyClient {
     public void ShareFolder() {
     	try {
     		dos.writeUTF("ShareFolder");
-            dos.writeUTF("2");
+    		dos.writeUTF("102220024");
+            dos.writeUTF("6");
             dos.writeUTF("102220025");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
@@ -187,6 +196,7 @@ public class MyClient {
     public void DaleteShareFolder() {
     	try {
     		dos.writeUTF("DeleteShareFolder");
+    		dos.writeUTF("102220024");
             dos.writeUTF("20");
             dos.writeUTF("102220025");
             String message = dis.readUTF();
@@ -199,7 +209,8 @@ public class MyClient {
     public void DeleteFile() {
     	try {
 			dos.writeUTF("DeleteFile");
-			dos.writeUTF("9");
+			dos.writeUTF("102220024");
+			dos.writeUTF("13");
 			String message = dis.readUTF();
             System.out.println("Received from server: " + message);
 		} catch (Exception e) {
@@ -207,10 +218,26 @@ public class MyClient {
 		}
     }
     
-    public void GetData() {
+    public void RenameFile() {
     	try {
-            dos.writeUTF("GetData");
+			dos.writeUTF("RenameFile");
+			dos.writeUTF("102220024");
+			dos.writeUTF("12");
+			dos.writeUTF("Báo cáo.docx");
+			String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+    }
+    
+    public void AddGuest() {
+    	try {
+            dos.writeUTF("AddGuest");
             dos.writeUTF("102220024");
+            dos.writeUTF("102220025");
+            dos.writeUTF("13");
+            
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {
@@ -219,8 +246,10 @@ public class MyClient {
     }
     public void GetAllGuest() {
     	try {
-            dos.writeUTF("GetAllGuest");
-            dos.writeUTF("1");
+//            dos.writeUTF("GetAllFileGuest");
+    		dos.writeUTF("GetAllFolderGuest");
+            dos.writeUTF("102220024");
+            dos.writeUTF("6");
     		
 //            dos.writeUTF("AddGuest");
 //            dos.writeUTF("102220050");
@@ -258,12 +287,12 @@ public class MyClient {
     public void ReceiveFile(String savePath) {
         try {
         	dos.writeUTF("DownloadFile");
-        	dos.writeUTF("1");
+        	dos.writeUTF("13");
             InputStream is = socket.getInputStream();
             BufferedInputStream bis = new BufferedInputStream(is);
             FileOutputStream fos = new FileOutputStream(Paths.get(savePath).toString());
             
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[8192];
             int bytesRead;
             while ((bytesRead = bis.read(buffer, 0, buffer.length)) != -1) {
                 fos.write(buffer, 0, bytesRead);
@@ -292,7 +321,7 @@ public class MyClient {
             dos.writeUTF("UploadFile"); // Loại yêu cầu
             dos.writeUTF("102220024"); // MSSV
             dos.writeUTF("TanKhoi - Danh sach De tai PBL HeDieuHanh&MMT.docx"); // Tên file
-            dos.writeUTF("2");
+            dos.writeUTF("1");
             dos.writeUTF(String.valueOf(file.length())); // Kích thước file
 
             // Gửi dữ liệu file
@@ -322,6 +351,98 @@ public class MyClient {
                 if (socket != null) socket.close();
             } catch (IOException e) {
                 System.out.println("Lỗi khi đóng kết nối: " + e.getMessage());
+            }
+        }
+    }
+    
+    public void UploadFolder() {
+    	try {
+    		String folderPath = "D:\\2024\\PBL4\\FileData\\102220024"; // Đường dẫn thư mục cần upload
+            String folderName = new File(folderPath).getName();
+            int parentFolderID = 0; // ID của thư mục cha (0 nếu là thư mục gốc)
+            double folderSize = getFolderSize(folderPath);
+            dos.writeUTF("UploadFolder"); // Chức năng UploadFolder
+            dos.writeUTF(folderName); // Tên thư mục
+            dos.writeUTF("1"); // ID thư mục cha
+            dos.writeUTF(String.valueOf(folderSize)); // Kích thước thư mục
+
+            // Bước 2: Nén thư mục thành file ZIP và gửi file ZIP
+            String zipFilePath = folderPath + ".zip";
+            zipFolder(folderPath, zipFilePath);
+
+            // Gửi file ZIP
+            File zipFile = new File(zipFilePath);
+            try (FileInputStream fis = new FileInputStream(zipFile)) {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = fis.read(buffer)) != -1) {
+                    dos.write(buffer, 0, bytesRead);
+                }
+            }
+            System.out.println("File ZIP đã được gửi lên server!");
+
+            // Nhận phản hồi từ server
+            String response = dis.readUTF();
+            System.out.println("Server response: " + response);
+
+            // Xóa file ZIP tạm thời
+            zipFile.delete();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+    }
+    private static double getFolderSize(String folderPath) {
+        File folder = new File(folderPath);
+        double size = 0;
+
+        if (folder.exists() && folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            for (File file : files) {
+                if (file.isFile()) {
+                    size += file.length();
+                } else if (file.isDirectory()) {
+                    size += getFolderSize(file.getAbsolutePath());
+                }
+            }
+        }
+
+        return size / 1024.0; // Trả về kích thước tính bằng KB
+    }
+
+    // Hàm nén thư mục thành file ZIP
+    private static void zipFolder(String sourceFolderPath, String zipFilePath) {
+        try (FileOutputStream fos = new FileOutputStream(zipFilePath);
+             ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+            File sourceFolder = new File(sourceFolderPath);
+            if (sourceFolder.exists() && sourceFolder.isDirectory()) {
+                zipDirectory(sourceFolder, sourceFolder.getName(), zos);
+            }
+
+            System.out.println("Thư mục đã được nén thành công!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Hàm nén thư mục và tất cả các tệp con vào trong file ZIP
+    private static void zipDirectory(File folderToZip, String parentFolder, ZipOutputStream zos) throws IOException {
+        File[] files = folderToZip.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                zipDirectory(file, parentFolder + "/" + file.getName(), zos);
+            } else {
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    ZipEntry zipEntry = new ZipEntry(parentFolder + "/" + file.getName());
+                    zos.putNextEntry(zipEntry);
+
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = fis.read(buffer)) != -1) {
+                        zos.write(buffer, 0, bytesRead);
+                    }
+                    zos.closeEntry();
+                }
             }
         }
     }

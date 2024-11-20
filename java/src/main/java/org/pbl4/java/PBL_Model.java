@@ -599,6 +599,37 @@ public class PBL_Model {
 	    }
 	}
 	
+	public boolean UpdateFileName(int FileID, String FileName) {
+		Connection con = GetConnection();
+		if(con == null) {
+			System.out.println("Cant connect with database");
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+	    	String query = "Update Files set FileName = ? where FileID = ?";
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setString(1, FileName);
+	        pstmt.setInt(2, FileID);
+	        pstmt.executeUpdate();
+
+	        pstmt.close();
+	        con.close();
+	        return true;
+	    } catch (Exception e) {
+	        System.err.println("Error: " + e.getMessage());
+	        return false;
+	    } finally {
+	        try {
+	            if (con != null) {
+	                con.close();
+	            }
+	        } catch (SQLException e) {
+	            System.out.println("Error closing the database: " + e.getMessage());
+	        }
+	    }
+	}
+	
 	public double GetFileSize(int FileID) {
 		Connection con = GetConnection();
 		if(con == null) {
@@ -1312,6 +1343,74 @@ public class PBL_Model {
 			System.err.println("Err: " + e);
             return "ERR";
 		}finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public String GetAllFileGuest(int FileID) {
+		Connection con = GetConnection();
+    	if (con == null) {
+            System.out.println("Can't connect with database");
+            return "ERR";
+        }
+    	try {
+    		String query = "Select MSSV from filerole  where FileID = ? and Role = 1";
+		     PreparedStatement pstmt = con.prepareStatement(query);
+		     pstmt.setInt(1, FileID);
+		     ResultSet rs  = pstmt.executeQuery();
+		     String result = "";
+		     while (rs.next()) {
+	                result += rs.getString("MSSV") + ",";
+	            }
+	            if (result.endsWith(",")) {
+	                result = result.substring(0, result.length() - 1);
+	            }
+	         return result;
+			
+		} catch (Exception e) {
+            System.out.println("ERR delauthor : " + e.getMessage());
+            return "ERR";
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public String GetAllFolderGuest(int FolderID) {
+		Connection con = GetConnection();
+    	if (con == null) {
+            System.out.println("Can't connect with database");
+            return "ERR";
+        }
+    	try {
+    		String query = "Select MSSV from folderrole  where FolderID = ? and Role = 1";
+		     PreparedStatement pstmt = con.prepareStatement(query);
+		     pstmt.setInt(1, FolderID);
+		     ResultSet rs  = pstmt.executeQuery();
+		     String result = "";
+		     while (rs.next()) {
+	                result += rs.getString("MSSV") + ",";
+	            }
+	            if (result.endsWith(",")) {
+	                result = result.substring(0, result.length() - 1);
+	            }
+	         return result;
+			
+		} catch (Exception e) {
+            System.out.println("ERR delauthor : " + e.getMessage());
+            return "ERR";
+        }finally {
             try {
                 if (con != null) {
                     con.close();

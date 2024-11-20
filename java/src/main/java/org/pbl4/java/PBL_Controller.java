@@ -18,6 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class PBL_Controller {
 	private Socket socket;
@@ -39,6 +40,7 @@ public class PBL_Controller {
             
             if (md.Login(MSSV, password)) {
             	int Root = md.GetFolderRoot(MSSV);
+            	dos.writeUTF("Login successfully");
             	dos.writeUTF(Integer.toString(Root));
             } else {
                 dos.writeUTF("Login Failed");
@@ -587,7 +589,12 @@ public class PBL_Controller {
             }
 
             String FolderName = md.GetFolderNameByFolderID(FolderID);
-            String FolderPath = md.GetFolderPath(FolderID) + "\\" + FolderName;
+            String FolderPath = md.GetFolderPath(FolderID);
+            if(FolderPath == null) {
+            	FolderPath = FolderName;
+            }else {
+            	FolderPath += FolderName;
+            }
             
             if (!ReceiveFile(FolderPath, FileName, Data)) {
             	md.DeleteFile(FileID);
@@ -689,6 +696,9 @@ public class PBL_Controller {
             }
 
             String FolderPath = md.GetFolderPath(FolderID);
+            if(FolderPath == null) {
+            	FolderPath = "";
+            }
             String FolderName = md.GetFolderNameByFolderID(FolderID);
             String baseFolder = "D:\\2024\\PBL4\\FileData";
             String folderPath = Paths.get(baseFolder, FolderPath, FolderName).toString();
@@ -770,6 +780,9 @@ public class PBL_Controller {
 			
 			int FolderID = md.GetFolderIDByFileID(FileID);
 			String FolderPath = md.GetFolderPath(FolderID);
+			if (FolderPath == null) {
+				FolderPath = "";
+			}
 			String FolderName = md.GetFolderNameByFolderID(FolderID);
 			
 			String baseFolder = "D:\\2024\\PBL4\\FileData";
@@ -782,7 +795,10 @@ public class PBL_Controller {
 	            // Thực hiện xóa file
 	            if (file.delete()) {
 	                System.out.println("File đã được xóa thành công: " + filePath);
+	                Double FileSize = md.GetFileSize(FileID);
+	                Double Data = md.GetData(MSSV);
 	                md.DeleteFile(FileID);
+	                md.UpdateDataUser(MSSV, Data- FileSize);
 	                dos.writeUTF("Delete file successfully");
 	                return ;
 	            } else {
@@ -795,10 +811,368 @@ public class PBL_Controller {
 	        dos.writeUTF("Delete file failed");
             return ;
 		} catch (Exception e) {
-			System.out.println("Error in UploadFile: " + e.getMessage());
+			System.out.println("Error: " + e.getMessage());
             e.printStackTrace();
 		}
     }
+    
+    public void RenameFile() {
+    	try {
+			String MSSV = dis.readUTF();
+			int FileID = Integer.parseInt(dis.readUTF());
+			String FileName = dis.readUTF();
+			
+			PBL_Model md = new PBL_Model();
+			if(!md.GetMSSVByFileID(FileID).equals(MSSV)) {
+				dos.writeUTF("Cant rename this file");
+				return;
+			}
+			
+			int FolderID = md.GetFolderIDByFileID(FileID);
+			if(md.CheckFileExits(FileName, FolderID)) {
+				dos.writeUTF("Filename already exits");
+				return;
+			}
+			
+			String baseFolder = "D:\\2024\\PBL4\\FileData";
+			String FolderPath = md.GetFolderPath(FolderID);
+			if(FolderPath == null) {
+				FolderPath = "";
+			}
+			String NameFolder = md.GetFolderNameByFolderID(FolderID);
+			String OldName = md.GetFileNameByFileID(FileID);
+			
+			String NewPath = Paths.get(baseFolder, FolderPath, NameFolder,FileName).toString();
+			String OldPath = Paths.get(baseFolder, FolderPath, NameFolder,OldName).toString();
+			
+			File currentFile = new File(OldPath);
+            File newFile = new File(NewPath);
+			
+			if (!currentFile.exists()) {
+                System.out.println("File không tồn tại: " + OldPath);
+                dos.writeUTF("File is not exits");
+                return;
+            }
+
+            // Kiểm tra nếu file đích đã tồn tại
+            if (newFile.exists()) {
+                System.out.println("File đích đã tồn tại: " + NewPath);
+                dos.writeUTF("Filename already exits");
+                return;
+            }
+
+            // Đổi tên file
+            if (currentFile.renameTo(newFile)) {
+            	md.UpdateFileName(FileID, FileName);
+                System.out.println("Đổi tên file thành công: " + NewPath);
+                dos.writeUTF("Rename successfully");
+                return;
+            } else {
+            	dos.writeUTF("Rename failed");
+                return;
+            }
+			
+			
+		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
+		}
+    }
+    public static String zipFile(String filePath) {
+        String zipFilePath = filePath + ".zip";
+        try (FileOutputStream fos = new FileOutputStream(zipFilePath);
+             ZipOutputStream zos = new ZipOutputStream(fos);
+             FileInputStream fis = new FileInputStream(filePath)) {
+        	ZipEntry zipEntry = new ZipEntry(new File(filePath).getName());
+
+            zos.putNextEntry(zipEntry);
+
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = fis.read(buffer)) > 0) {
+                zos.write(buffer, 0, len);
+            }
+
+            zos.closeEntry();
+            System.out.println("File đã được nén thành công: " + zipFilePath);
+
+        } catch (IOException e) {
+            System.out.println("Lỗi khi nén file: " + e.getMessage());
+        }
+        return zipFilePath;
+    }
+    
+    public void sendfile(String FilePath) {
+    	try {
+            File file = new File(FilePath);
+
+            try (FileInputStream fis = new FileInputStream(file);
+                 BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream())) {
+
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = fis.read(buffer)) != -1) {
+                    bos.write(buffer, 0, bytesRead);
+                }
+
+                bos.flush();
+                System.out.println("File đã được gửi tới client!");
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi khi gửi file: " + e.getMessage());
+        }
+    }
+    
+    public void DownloadFile() {
+    	try {
+			int FileID = Integer.parseInt(dis.readUTF());
+			PBL_Model md = new PBL_Model();
+			
+			String FileName = md.GetFileNameByFileID(FileID);
+			int FolderID = md.GetFolderIDByFileID(FileID);
+			String FolderPath = md.GetFolderPath(FolderID);
+			if (FolderPath == null) {
+				FolderPath = "";
+			}
+			String FolderName = md.GetFolderNameByFolderID(FolderID);
+			
+			String baseFolder = "D:\\2024\\PBL4\\FileData";
+			
+			String filePath = Paths.get(baseFolder, FolderPath, FolderName, FileName).toString();
+			dos.writeUTF(FileName);
+			String FileZipPath = zipFile(filePath);
+			sendfile(FileZipPath);
+			File zipFile = new File(FileZipPath);
+            if (zipFile.exists()) {
+                if (zipFile.delete()) {
+                    System.out.println("File ZIP đã được xóa sau khi giải nén: " + FileZipPath);
+                } else {
+                    System.out.println("Không thể xóa file ZIP: " + FileZipPath);
+                }
+            } else {
+                System.out.println("File ZIP không tồn tại: " + FileZipPath);
+            }
+			
+		} catch (Exception e) {
+			 System.out.println("Lỗi khi gửi file: " + e.getMessage());
+		}
+    }
+    
+    public void AddGuest() {
+    	try {
+    		String Owner = dis.readUTF();
+    		String MSSV = dis.readUTF();
+			int FileID = Integer.parseInt(dis.readUTF());
+			PBL_Model md = new PBL_Model();
+			if(!md.GetMSSVByFileID(FileID).equals(Owner)) {
+				dos.writeUTF("Cant share this file");
+				return;
+			}
+    		if(!md.CheckMSSV(MSSV)) {
+    			dos.writeUTF("MSSV not found");
+    			return;
+    		}
+    		if(!md.CreateFileRole(MSSV, FileID, 1)) {
+				dos.writeUTF("Add guest failed");
+				return;
+			}
+    		dos.writeUTF("Share file successfully");
+    		return;
+		} catch (Exception e) {
+			System.out.println("Loi khi them nguoi xem: " + e.getMessage());
+		}
+    }
+    
+    public void DelGuest() {
+    	try {
+    		String Owner = dis.readUTF();
+    		String MSSV = dis.readUTF();
+			int FileID = Integer.parseInt(dis.readUTF());
+			PBL_Model md = new PBL_Model();
+			if(!md.GetMSSVByFileID(FileID).equals(Owner)) {
+				dos.writeUTF("Cant share this file");
+				return;
+			}
+    		if(!md.CheckMSSV(MSSV)) {
+    			dos.writeUTF("MSSV not found");
+    			return;
+    		}
+    		if(!md.DeleteFileRole(MSSV, FileID)) {
+				dos.writeUTF("Delete failed");
+				return;
+			}
+    		dos.writeUTF("Delete successfully");
+    		return;
+		} catch (Exception e) {
+			System.out.println("Loi khi Xoa nguoi xem: " + e.getMessage());
+		}
+    }
+    
+    public void GetAllFileGuest() {
+    	try {
+    		String MSSV = dis.readUTF();
+			int FileID = Integer.parseInt(dis.readUTF());
+			PBL_Model md = new PBL_Model();
+			if(!md.GetMSSVByFileID(FileID).equals(MSSV)) {
+				dos.writeUTF("Cant get");
+				return;
+			}
+			String Guest = md.GetAllFileGuest(FileID);
+			if (Guest.equals("ERR")) {
+				dos.writeUTF("Cant get guest");
+			}
+			System.out.print(Guest);
+			dos.writeUTF(Guest);
+			
+		} catch (Exception e) {
+			System.out.println("Loi khi tim nguoi xem: " + e.getMessage());
+		}
+    }
+    
+    public void GetAllFolderGuest() {
+    	try {
+    		String MSSV = dis.readUTF();
+			int FolderID = Integer.parseInt(dis.readUTF());
+			PBL_Model md = new PBL_Model();
+			if(!md.GetMSSVByFolderID(FolderID).equals(MSSV)) {
+				dos.writeUTF("Cant get");
+				return;
+			}
+			String Guest = md.GetAllFolderGuest(FolderID);
+			if (Guest.equals("ERR")) {
+				dos.writeUTF("Cant get guest");
+			}
+			System.out.print(Guest);
+			dos.writeUTF(Guest);
+			
+		} catch (Exception e) {
+			System.out.println("Loi khi tim nguoi xem: " + e.getMessage());
+			e.printStackTrace();
+		}
+    }
+    
+//    public void UploadFolder() {
+//        try {
+//            // Bước 1: Nhận thông tin từ client
+//            String folderName = dis.readUTF(); // Tên thư mục
+//            int folderParent = Integer.parseInt(dis.readUTF()); // ID thư mục cha
+//            double folderSize = Double.parseDouble(dis.readUTF()); // Kích thước thư mục (nếu cần)
+//
+//            PBL_Model md = new PBL_Model();
+//
+//            // Lấy đường dẫn thư mục cha từ database
+//            String folderPath = md.GetFolderPath(folderParent);
+//            if (folderPath == null) {
+//                folderPath = "";
+//            }
+//
+//            // Xây dựng đường dẫn lưu trữ dựa trên thư mục gốc
+//            String baseFolder = "D:\\2024\\PBL4\\FileData";
+//            String folderParentName = md.GetFolderNameByFolderID(folderParent);
+//            folderPath = Paths.get(baseFolder, folderPath, folderParentName, folderName).toString();
+//
+//            // Đường dẫn file ZIP
+//            String zipFilePath = folderPath + ".zip";
+//
+//            // Tạo thư mục đích nếu chưa tồn tại
+//            File destFolder = new File(folderPath);
+//            if (!destFolder.exists() && !destFolder.mkdirs()) {
+//                dos.writeUTF("Không thể tạo thư mục đích: " + folderPath);
+//                return;
+//            }
+//
+//            // Bước 2: Nhận và lưu file ZIP từ client
+//            try (FileOutputStream fos = new FileOutputStream(zipFilePath)) {
+//                byte[] buffer = new byte[4096];
+//                int bytesRead;
+//                while ((bytesRead = dis.read(buffer)) != -1) {
+//                    fos.write(buffer, 0, bytesRead);
+//                }
+//            }
+//            System.out.println("File ZIP nhận thành công: " + zipFilePath);
+//
+//            // Bước 3: Giải nén file ZIP
+//            try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath))) {
+//                ZipEntry entry;
+//                while ((entry = zipIn.getNextEntry()) != null) {
+//                    String entryPath = Paths.get(folderPath, entry.getName()).toString();
+//                    if (entry.isDirectory()) {
+//                        new File(entryPath).mkdirs();
+//                    } else {
+//                        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(entryPath))) {
+//                            byte[] buffer = new byte[4096];
+//                            int read;
+//                            while ((read = zipIn.read(buffer)) != -1) {
+//                                bos.write(buffer, 0, read);
+//                            }
+//                        }
+//                    }
+//                    zipIn.closeEntry();
+//                }
+//            }
+//            System.out.println("Giải nén thành công vào: " + folderPath);
+//
+//            // Bước 4: Xóa file ZIP sau khi giải nén
+//            File zipFile = new File(zipFilePath);
+//            if (zipFile.exists() && zipFile.delete()) {
+//                System.out.println("Đã xóa file ZIP: " + zipFilePath);
+//            }
+//
+//            // Bước 5: Duyệt và cập nhật cơ sở dữ liệu
+//            traverseAndUpdateDB(folderPath, folderParent, md);
+//
+//            // Phản hồi thành công cho client
+//            dos.writeUTF("UploadFolder thành công!");
+//        } catch (IOException e) {
+//            // Xử lý lỗi
+//            System.err.println("Lỗi khi upload folder: " + e.getMessage());
+//            try {
+//                dos.writeUTF("Lỗi khi upload folder: " + e.getMessage());
+//            } catch (IOException ignored) {
+//            }
+//            e.printStackTrace();
+//        }
+//    }
+//    
+//    private void traverseAndUpdateDB(String folderPath, int parentID, PBL_Model md) {
+//        File folder = new File(folderPath);
+//        if (!folder.exists() || !folder.isDirectory()) {
+//            System.err.println("Thư mục không tồn tại hoặc không hợp lệ: " + folderPath);
+//            return;
+//        }
+//
+//        // Lấy danh sách các tệp và thư mục trong thư mục hiện tại
+//        File[] files = folder.listFiles();
+//        if (files == null) {
+//            System.err.println("Không thể lấy danh sách file/thư mục tại: " + folderPath);
+//            return;
+//        }
+//
+//        for (File file : files) {
+//            if (file.isDirectory()) {
+//                // Nếu là thư mục, thêm vào bảng Folders
+//                String relativePath = folderPath.replace("D:\\2024\\PBL4\\FileData", ""); // Lấy đường dẫn tương đối
+//                int folderID = md.CreateFolder(file.getName(), parentID, relativePath);
+//                if (folderID > 0) {
+//                    System.out.println("Thêm thư mục vào DB: " + file.getName() + " (FolderID: " + folderID + ")");
+//                    // Đệ quy để duyệt tiếp thư mục con
+//                    traverseAndUpdateDB(file.getAbsolutePath(), folderID, md);
+//                } else {
+//                    System.err.println("Không thể thêm thư mục vào DB: " + file.getName());
+//                }
+//            } else {
+//                // Nếu là tệp, thêm vào bảng Files
+//                double fileSize = file.length() / 1024.0; // Kích thước tính bằng KB
+//                int fileID = md.CreateFile(file.getName(), parentID, fileSize);
+//                if (fileID > 0) {
+//                    System.out.println("Thêm tệp vào DB: " + file.getName() + " (FileID: " + fileID + ")");
+//                } else {
+//                    System.err.println("Không thể thêm tệp vào DB: " + file.getName());
+//                }
+//            }
+//        }
+//    }
+
 
 }
 

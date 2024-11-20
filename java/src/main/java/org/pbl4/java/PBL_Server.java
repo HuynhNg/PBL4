@@ -86,17 +86,26 @@ class PBLServer extends Thread{
                 case "DeleteFile":
                 	DeleteFile();
                 	break;
-//                case "DownloadFile":
-//                	DownloadFile();
-//                	break;
-//                case "AddGuest":
-//                	AddGuest();
-//                	break;
-//                case "DelGuest":
-//                	DelGuest();
-//                	break;
-//                case "GetAllGuest":
-//                	GetAllGuest();
+                case "RenameFile":
+                	RenameFile();
+                	break;
+                case "DownloadFile":
+                	DownloadFile();
+                	break;
+                case "AddGuest":
+                	AddGuest();
+                	break;
+                case "DelGuest":
+                	DelGuest();
+                	break;
+                case "GetAllFileGuest":
+                	GetAllFileGuest();
+                	break;
+                case "GetAllFolderGuest":
+                	GetAllFolderGuest();
+                	break;
+//                case "UploadFolder":
+//                	UploadFolder();
 //                	break;
                 default:
                     System.out.println("Unknown command: " + message);
@@ -257,4 +266,65 @@ class PBLServer extends Thread{
             System.out.println("Error: " + e.getMessage());
         }
 	}
+	
+	public void RenameFile() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.RenameFile();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
+	public void DownloadFile() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.DownloadFile();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
+	public void AddGuest() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.AddGuest();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
+	public void DelGuest() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.DelGuest();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
+	public void GetAllFileGuest() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.GetAllFileGuest();;
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	public void GetAllFolderGuest() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.GetAllFolderGuest();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+//	public void UploadFolder() {
+//		try {
+//			PBL_Controller ctl = new PBL_Controller(socket);
+//			ctl.UploadFolder();
+//        } catch (IOException e) {
+//            System.out.println("Error: " + e.getMessage());
+//        }
+//	}
 }
