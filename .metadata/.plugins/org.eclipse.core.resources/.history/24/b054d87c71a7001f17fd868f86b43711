@@ -1183,39 +1183,27 @@ public class PBL_Controller {
             }
 
             System.out.println("Thư mục đã được nén thành công!");
-            return zipFilePath;
+            return zipFilePath;  // Trả về đường dẫn file ZIP
         } catch (IOException e) {
             e.printStackTrace();
-            return null;  // Trả về null nếu có lỗi
+            return null;  // Nếu có lỗi, trả về null
         }
     }
 
-
     // Hàm nén thư mục và các file trong thư mục
     private static void zipDirectory(File folderToZip, String parentFolder, ZipOutputStream zos) throws IOException {
-        // Đảm bảo lấy danh sách tất cả file và thư mục trong thư mục hiện tại
         File[] files = folderToZip.listFiles();
-        if (files == null || files.length == 0) {
-            // Nếu thư mục rỗng, thêm nó vào file ZIP
-            ZipEntry zipEntry = new ZipEntry(parentFolder + "/");
-            zos.putNextEntry(zipEntry);
-            zos.closeEntry();
-            return;
-        }
-
         for (File file : files) {
             if (file.isDirectory()) {
-                // Đệ quy xử lý thư mục con
+                // Nếu là thư mục, đệ quy để nén thư mục con
                 zipDirectory(file, parentFolder + "/" + file.getName(), zos);
             } else {
-                // Xử lý file
+                // Nếu là file, nén file
                 try (FileInputStream fis = new FileInputStream(file)) {
-                    // Tạo một entry trong file ZIP
                     String entryName = parentFolder + "/" + file.getName();
                     ZipEntry zipEntry = new ZipEntry(entryName);
                     zos.putNextEntry(zipEntry);
 
-                    // Ghi dữ liệu file vào entry
                     byte[] buffer = new byte[4096];
                     int bytesRead;
                     while ((bytesRead = fis.read(buffer)) != -1) {
@@ -1226,7 +1214,6 @@ public class PBL_Controller {
             }
         }
     }
-
     
     public void DownloadFolder() {
     	try {
@@ -1234,9 +1221,6 @@ public class PBL_Controller {
 			
 			PBL_Model md = new PBL_Model();
 			String FolderPath = md.GetFolderPath(FolderID);
-			if(FolderPath == null ) {
-				FolderPath = "";
-			}
 			String FolderName = md.GetFolderNameByFolderID(FolderID);
 			String baseFolder = "D:\\2024\\PBL4\\FileData";
 			String sourceFolderPath = Paths.get(baseFolder, FolderPath, FolderName).toString(); // Đường dẫn thư mục cần nén

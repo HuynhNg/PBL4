@@ -104,9 +104,6 @@ class PBLServer extends Thread{
                 case "GetAllFolderGuest":
                 	GetAllFolderGuest();
                 	break;
-                case "DownloadFolder":
-                	DownloadFolder();
-                	break;
 //                case "UploadFolder":
 //                	UploadFolder();
 //                	break;
@@ -330,12 +327,4 @@ class PBLServer extends Thread{
 //            System.out.println("Error: " + e.getMessage());
 //        }
 //	}
-	public void DownloadFolder() {
-		try {
-			PBL_Controller ctl = new PBL_Controller(socket);
-			ctl.DownloadFolder();
-        } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-	}
 }

@@ -48,8 +48,8 @@ public class MyClient {
 //        client.GetData();
 //        client.UpdateData();
 //        client.UploadFile();
-        String savePath = "D:\\2024\\PBL4\\FileData\\received_file.zip";
-        client.ReceiveFile(savePath);
+//        String savePath = "D:\\2024\\PBL4\\FileData\\received_file.zip";
+//        client.ReceiveFile(savePath);
 //        client.AddGuest();
 //        client.GetAllGuest();
 //        client.sendFile();
