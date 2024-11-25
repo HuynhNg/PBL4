@@ -107,9 +107,9 @@ class PBLServer extends Thread{
                 case "DownloadFolder":
                 	DownloadFolder();
                 	break;
-//                case "UploadFolder":
-//                	UploadFolder();
-//                	break;
+                case "UploadFolder":
+                	UploadFolder();
+                	break;
                 default:
                     System.out.println("Unknown command: " + message);
                     break;
@@ -322,14 +322,14 @@ class PBLServer extends Thread{
             System.out.println("Error: " + e.getMessage());
         }
 	}
-//	public void UploadFolder() {
-//		try {
-//			PBL_Controller ctl = new PBL_Controller(socket);
-//			ctl.UploadFolder();
-//        } catch (IOException e) {
-//            System.out.println("Error: " + e.getMessage());
-//        }
-//	}
+	public void UploadFolder() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.UploadFolder();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
 	public void DownloadFolder() {
 		try {
 			PBL_Controller ctl = new PBL_Controller(socket);

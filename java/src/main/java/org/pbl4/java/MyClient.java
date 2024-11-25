@@ -48,11 +48,11 @@ public class MyClient {
 //        client.GetData();
 //        client.UpdateData();
 //        client.UploadFile();
-        String savePath = "D:\\2024\\PBL4\\FileData\\received_file.zip";
-        client.ReceiveFile(savePath);
+//        String savePath = "D:\\2024\\PBL4\\FileData\\received_file.zip";
+//        client.ReceiveFile(savePath);
 //        client.AddGuest();
 //        client.GetAllGuest();
-//        client.sendFile();
+        client.sendFile();
 //        client.UploadFolder();
 
     }
@@ -144,9 +144,9 @@ public class MyClient {
     public void CreateFolder() {
     	try {
     		dos.writeUTF("CreateFolder");
-    		dos.writeUTF("102220024");
-            dos.writeUTF("Note");
-            dos.writeUTF("1");
+    		dos.writeUTF("102220025");
+            dos.writeUTF("Book");
+            dos.writeUTF("3");
             String message = dis.readUTF();
             System.out.println("Folder: " + message);
             String message1 = dis.readUTF();
@@ -183,9 +183,9 @@ public class MyClient {
     public void ShareFolder() {
     	try {
     		dos.writeUTF("ShareFolder");
-    		dos.writeUTF("102220024");
-            dos.writeUTF("6");
-            dos.writeUTF("102220025");
+    		dos.writeUTF("102220025");
+            dos.writeUTF("35");
+            dos.writeUTF("102220024");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {
@@ -308,7 +308,7 @@ public class MyClient {
     public void sendFile() {
         try {
             // Đường dẫn file
-            File file = new File("D:\\2024\\PBL4\\Đề tài\\TanKhoi - Danh sach De tai PBL HeDieuHanh&MMT.docx.zip");
+            File file = new File("D:\\2024\\cnpm.zip");
             if (!file.exists()) {
                 System.out.println("File không tồn tại: " + file.getAbsolutePath());
                 return;
@@ -318,9 +318,9 @@ public class MyClient {
             System.out.println("Kích thước file: " + file.length() + " bytes");
 
             // Gửi thông tin file
-            dos.writeUTF("UploadFile"); // Loại yêu cầu
+            dos.writeUTF("UploadFolder"); // Loại yêu cầu
             dos.writeUTF("102220024"); // MSSV
-            dos.writeUTF("TanKhoi - Danh sach De tai PBL HeDieuHanh&MMT.docx"); // Tên file
+            dos.writeUTF("cnpm"); // Tên file
             dos.writeUTF("1");
             dos.writeUTF(String.valueOf(file.length())); // Kích thước file
 
