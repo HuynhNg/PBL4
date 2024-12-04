@@ -405,17 +405,17 @@ public class PBL_Controller {
     public void DeleteFolder() {
         try {
             // Nhận thông tin FolderID
-        	String MSSV = dis.readUTF();
+            String MSSV = dis.readUTF();
             int FolderID = Integer.parseInt(dis.readUTF());
 
             // Lấy thông tin thư mục từ model
             PBL_Model md = new PBL_Model();
-            
-            if(!md.GetMSSVByFolderID(FolderID).equals(MSSV)) {
-            	dos.writeUTF("MSSV cant delete this folder");
+
+            if (!md.GetMSSVByFolderID(FolderID).equals(MSSV)) {
+                dos.writeUTF("MSSV cant delete this folder");
                 return;
             }
-            
+
             String FolderName = md.GetFolderNameByFolderID(FolderID);
             if (FolderName.equals("ERR")) {
                 dos.writeUTF("Delete Folder failed: Invalid Folder ID.");
@@ -438,13 +438,20 @@ public class PBL_Controller {
                 return;
             }
 
+            // Biến để tính tổng kích thước
+            final long[] totalSize = {0};
+
             // Xóa thư mục và nội dung
             try {
                 Files.walkFileTree(folderPath, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                         try {
-                            Files.delete(file); // Xóa file
+                            // Cộng kích thước file vào tổng
+                            totalSize[0] += Files.size(file);
+
+                            // Xóa file
+                            Files.delete(file);
                         } catch (IOException e) {
                             System.out.println("Error deleting file: " + file + " - " + e.getMessage());
                         }
@@ -467,10 +474,15 @@ public class PBL_Controller {
                     dos.writeUTF("Delete Folder failed: Database update error.");
                     return;
                 }
+                
+                double data = md.GetData(MSSV);
+                data = data - totalSize[0];
+                md.UpdateDataUser(MSSV, data);
 
-                // Thông báo thành công
-                dos.writeUTF("Delete Folder successfully.");
+                // Thông báo thành công kèm tổng kích thước
+                dos.writeUTF("Delete Folder successfully. Total data deleted: " + totalSize[0] + " bytes.");
                 System.out.println("Folder deleted successfully: " + folderPath);
+//                System.out.println("Total data deleted: " + totalSize[0] + " bytes.");
 
             } catch (IOException e) {
                 dos.writeUTF("Delete Folder failed: " + e.getMessage());
@@ -482,6 +494,7 @@ public class PBL_Controller {
             e.printStackTrace();
         }
     }
+
 
     public void ShareFolder() {
     	try {
@@ -1308,6 +1321,63 @@ public class PBL_Controller {
             	double data = md.GetData(MSSV) + (double) dir.length();
             	md.UpdateDataUser(MSSV, data);
             }
+		} catch (Exception e) {
+			System.out.println("ERR: " + e.getMessage());
+			e.printStackTrace();
+		}
+    }
+    
+    
+    public void Search() {
+    	try {
+			String MSSV = dis.readUTF();
+			String Word = dis.readUTF();
+			
+			PBL_Model md = new PBL_Model();
+			
+			String Folder = md.SreachFolder(MSSV, Word);
+			String File = md.SreachFile(MSSV, Word);
+			
+			dos.writeUTF(Folder);
+			dos.writeUTF(File);
+			dos.flush();
+			
+		} catch (Exception e) {
+			System.out.println("ERR: " + e.getMessage());
+			e.printStackTrace();
+		}
+    }
+    
+    public void GetAllUser() {
+    	try {
+			String MSSV = dis.readUTF();
+			PBL_Model md = new PBL_Model();
+			
+			String Users = md.GetAllUser();
+			dos.writeUTF(Users);
+			dos.flush();
+		} catch (Exception e) {
+			System.out.println("ERR: " + e.getMessage());
+			e.printStackTrace();
+		}
+    }
+    
+    public void ResetPassword() {
+    	try {
+			String MSSV = dis.readUTF();
+			PBL_Model md = new PBL_Model();
+			
+			if(!md.CheckMSSV(MSSV)) {
+				dos.writeUTF("MSSV not found");
+				return;
+			}
+			String NewPass = md.ResetPassword(MSSV);
+			if(NewPass.equals("ERR")) {
+				dos.writeUTF("Cant reset password");
+				return;
+			}
+			dos.writeUTF(NewPass);
+			dos.flush();
 		} catch (Exception e) {
 			System.out.println("ERR: " + e.getMessage());
 			e.printStackTrace();

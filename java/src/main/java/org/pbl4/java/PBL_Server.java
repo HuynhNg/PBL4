@@ -110,6 +110,15 @@ class PBLServer extends Thread{
                 case "UploadFolder":
                 	UploadFolder();
                 	break;
+                case "Search":
+                	Search();
+                	break;
+                case "GetAllUser":
+                	GetAllUser();
+                	break;
+                case "ResetPassword":
+                	ResetPassword();
+                	break;
                 default:
                     System.out.println("Unknown command: " + message);
                     break;
@@ -334,6 +343,31 @@ class PBLServer extends Thread{
 		try {
 			PBL_Controller ctl = new PBL_Controller(socket);
 			ctl.DownloadFolder();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
+	public void Search() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.Search();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	public void GetAllUser() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.GetAllUser();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	public void ResetPassword() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.ResetPassword();
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
         }

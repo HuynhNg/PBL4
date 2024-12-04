@@ -1374,7 +1374,7 @@ public class PBL_Model {
 	         return result;
 			
 		} catch (Exception e) {
-            System.out.println("ERR delauthor : " + e.getMessage());
+            System.out.println("ERR: " + e.getMessage());
             return "ERR";
         }finally {
             try {
@@ -1408,7 +1408,140 @@ public class PBL_Model {
 	         return result;
 			
 		} catch (Exception e) {
-            System.out.println("ERR delauthor : " + e.getMessage());
+            System.out.println("ERR: " + e.getMessage());
+            return "ERR";
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	
+	public String SreachFolder(String MSSV, String Word) {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Can't connect with database");
+            return "ERR";
+        }
+        try {
+            String query = "SELECT f.FolderID,f.FolderName FROM Folders f " +
+                           "JOIN FolderRole a ON f.FolderID = a.FolderID " +
+                           "WHERE a.MSSV = ? and f.FolderName LIKE CONCAT('%', ?, '%');";
+            PreparedStatement pstmt = con.prepareStatement(query);
+            pstmt.setString(1, MSSV);
+            pstmt.setString(2, Word);
+            String result = "";
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                result +=rs.getString("FolderID") + ","+  rs.getString("FolderName") + ";";
+            }
+            if (result.endsWith(";")) {
+                result = result.substring(0, result.length() - 1);
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println("ERR: " + e.getMessage());
+            return "ERR";
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public String SreachFile(String MSSV, String Word) {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Can't connect with database");
+            return "ERR";
+        }
+        try {
+            String query = "SELECT f.FileID,f.FileName FROM Files f " +
+                           "JOIN FileRole a ON f.FileID = a.FileID " +
+                           "WHERE a.MSSV = ? and f.FileName LIKE CONCAT('%', ?, '%');";
+            PreparedStatement pstmt = con.prepareStatement(query);
+            pstmt.setString(1, MSSV);
+            pstmt.setString(2, Word);
+            String result = "";
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                result +=rs.getString("FileID") + ","+  rs.getString("FileName") + ";";
+            }
+            if (result.endsWith(";")) {
+                result = result.substring(0, result.length() - 1);
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println("ERR: " + e.getMessage());
+            return "ERR";
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public String GetAllUser() {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Can't connect with database");
+            return "ERR";
+        }
+        try {
+            String query = "Select MSSV, Name From Users where Role = 1";
+            PreparedStatement pstmt = con.prepareStatement(query);
+            String result = "";
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                result +=rs.getString("MSSV") + ","+  rs.getString("Name") + ";";
+            }
+            if (result.endsWith(";")) {
+                result = result.substring(0, result.length() - 1);
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println("ERR: " + e.getMessage());
+            return "ERR";
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public String ResetPassword(String MSSV) {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Can't connect with database");
+            return "ERR";
+        }
+        try { 
+        	String Password = "00000";
+            String query = "UPDATE Account SET Password = ? WHERE MSSV = ?;";
+            PreparedStatement pstmt = con.prepareStatement(query);
+            pstmt.setString(1, Password);
+            pstmt.setString(2, MSSV);
+            pstmt.executeUpdate();
+            return Password;
+        } catch (Exception e) {
+            System.out.println("ERR: " + e.getMessage());
             return "ERR";
         }finally {
             try {
