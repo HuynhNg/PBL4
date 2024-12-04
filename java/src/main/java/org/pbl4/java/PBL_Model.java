@@ -1553,4 +1553,33 @@ public class PBL_Model {
             }
         }
 	}
+	
+	public int getRole(String MSSV) {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Cant connect with database");
+            return -1;
+        }
+        try {
+            String query = "SELECT * FROM Users where MSSV = ?";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1, MSSV);
+            ResultSet  rs = stmt.executeQuery();
+            if(rs.next()) {
+            	return rs.getInt("Role");
+            }
+            return -1;
+        } catch (Exception e) {
+            System.err.println("Err:" + e);
+            return -1;
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
 }

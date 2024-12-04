@@ -1357,11 +1357,7 @@ public class PBL_Controller {
     	try {
 			String MSSV = dis.readUTF();
 			PBL_Model md = new PBL_Model();
-			if(md.getRole(MSSV) != 0) {
-				dos.writeUTF("you are not an administrator");
-				dos.flush();
-				return;
-			}
+			
 			String Users = md.GetAllUser();
 			dos.writeUTF(Users);
 			dos.flush();

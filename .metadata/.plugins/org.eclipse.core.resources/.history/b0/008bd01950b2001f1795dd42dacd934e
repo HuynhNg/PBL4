@@ -52,8 +52,11 @@ public class MyClient {
 //        client.ReceiveFile(savePath);
 //        client.AddGuest();
 //        client.GetAllGuest();
-        client.sendFile();
+//        client.sendFile();
 //        client.UploadFolder();
+//        client.Search();
+//        client.GetAllUser();
+        client.ResetPassword();
 
     }
     public void Login(){
@@ -444,6 +447,44 @@ public class MyClient {
                     zos.closeEntry();
                 }
             }
+        }
+    }
+    
+    public void Search() {
+        try {
+        	dos.writeUTF("Search");
+        	dos.writeUTF("102220024");
+        	dos.writeUTF("TanKhoi");
+            
+        	String Folder = dis.readUTF();
+        	String File = dis.readUTF();
+        	System.out.println("folder : "+Folder);
+        	System.out.println("file: " + File);
+        } catch (Exception e) {
+            System.out.println("Lỗi khi nhận file: " + e.getMessage());
+        }
+    }
+    
+    public void GetAllUser() {
+        try {
+        	dos.writeUTF("GetAllUser");
+        	dos.writeUTF("Admin");
+            
+        	String Users = dis.readUTF();
+        	System.out.println("users : "+Users);
+        } catch (Exception e) {
+            System.out.println("Lỗi khi nhận file: " + e.getMessage());
+        }
+    }
+    public void ResetPassword() {
+        try {
+        	dos.writeUTF("ResetPassword");
+        	dos.writeUTF("102220025");
+            
+        	String Users = dis.readUTF();
+        	System.out.println("Pass : "+Users);
+        } catch (Exception e) {
+            System.out.println("Lỗi khi nhận file: " + e.getMessage());
         }
     }
 }

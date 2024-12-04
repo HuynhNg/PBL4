@@ -40,7 +40,7 @@ public class MyClient {
 //        client.GetAllByFolderID();
 //        client.CreateFolder();
 //      client.ChangeFolderName();
-        	client.DeleteFolder();
+//        	client.DeleteFolder();
 //        client.ShareFolder();
 //        client.DaleteShareFolder();
 //        client.DeleteFile();
@@ -52,7 +52,7 @@ public class MyClient {
 //        client.ReceiveFile(savePath);
 //        client.AddGuest();
 //        client.GetAllGuest();
-//        client.sendFile();
+        client.sendFile();
 //        client.UploadFolder();
 //        client.Search();
 //        client.GetAllUser();
@@ -175,7 +175,7 @@ public class MyClient {
     	try {
     		dos.writeUTF("DeleteFolder");
     		dos.writeUTF("102220024");
-            dos.writeUTF("4");
+            dos.writeUTF("5");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {

@@ -174,7 +174,7 @@ public class MyClient {
     public void DeleteFolder() {
     	try {
     		dos.writeUTF("DeleteFolder");
-    		dos.writeUTF("102220024");
+    		dos.writeUTF("102220025");
             dos.writeUTF("4");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);

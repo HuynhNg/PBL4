@@ -31,7 +31,7 @@ public class MyClient {
     public static void main(String[] args) {
         MyClient  client = new MyClient();
         client.startClient();
-//        client.Login();
+        client.Login();
 //        client.Register();
 //        client.UpdatePassword();
 //        client.GetInformation();
@@ -40,7 +40,7 @@ public class MyClient {
 //        client.GetAllByFolderID();
 //        client.CreateFolder();
 //      client.ChangeFolderName();
-        	client.DeleteFolder();
+//        	client.DeleteFolder();
 //        client.ShareFolder();
 //        client.DaleteShareFolder();
 //        client.DeleteFile();
@@ -147,9 +147,9 @@ public class MyClient {
     public void CreateFolder() {
     	try {
     		dos.writeUTF("CreateFolder");
-    		dos.writeUTF("102220024");
+    		dos.writeUTF("102220025");
             dos.writeUTF("Book");
-            dos.writeUTF("1");
+            dos.writeUTF("3");
             String message = dis.readUTF();
             System.out.println("Folder: " + message);
             String message1 = dis.readUTF();
@@ -175,7 +175,7 @@ public class MyClient {
     	try {
     		dos.writeUTF("DeleteFolder");
     		dos.writeUTF("102220024");
-            dos.writeUTF("4");
+            dos.writeUTF("5");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {
