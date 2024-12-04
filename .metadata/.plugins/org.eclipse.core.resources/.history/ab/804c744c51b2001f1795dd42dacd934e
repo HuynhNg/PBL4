@@ -153,13 +153,12 @@ public class PBL_Controller {
 			String MSSV = dis.readUTF();
 			String Name = dis.readUTF();
 			String Class = dis.readUTF();
-			int Role = Integer.parseInt(dis.readUTF());
 			PBL_Model md = new PBL_Model();
 			if(!md.CheckMSSV(MSSV)) {
 				dos.writeUTF("MSSV not found");
 				return;
 			}
-			if(!md.UpdateUser(MSSV, Name, Class, Role)) {
+			if(!md.UpdateUser(MSSV, Name, Class)) {
 				dos.writeUTF("Update inforamtion is not successfull");
 				return;
 			}

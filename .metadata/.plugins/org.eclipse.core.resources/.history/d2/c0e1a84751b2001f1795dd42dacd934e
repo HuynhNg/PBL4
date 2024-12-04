@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Random;
 
 public class PBL_Model {
 	public static void main(String[] args){
@@ -297,19 +296,18 @@ public class PBL_Model {
 	    }
 	}
 	
-	public boolean UpdateUser(String MSSV, String Name, String Class, int Role) {
+	public boolean UpdateUser(String MSSV, String Name, String Class) {
 		Connection con = GetConnection();
 		if(con == null) {
 			System.out.println("Cant connect with database");
 			return false;
 		}
 		try {
-            String query = "UPDATE Users SET Name = ?, Class = ? , Role = ? WHERE MSSV = ?";
+            String query = "UPDATE Users SET Name = ?, Class = ? WHERE MSSV = ?";
             PreparedStatement pstmt = con.prepareStatement(query);
             pstmt.setString(1,Name);
             pstmt.setString(2,Class);
             pstmt.setString(3,MSSV);
-            pstmt.setInt(4, Role);
             pstmt.executeUpdate();
             pstmt.close();
             con.close();
@@ -1535,9 +1533,7 @@ public class PBL_Model {
             return "ERR";
         }
         try { 
-        	Random random = new Random();
-        	int randomNumber = 100000 + random.nextInt(900000);
-        	String Password = Integer.toString(randomNumber);
+        	String Password = "00000";
             String query = "UPDATE Account SET Password = ? WHERE MSSV = ?;";
             PreparedStatement pstmt = con.prepareStatement(query);
             pstmt.setString(1, Password);

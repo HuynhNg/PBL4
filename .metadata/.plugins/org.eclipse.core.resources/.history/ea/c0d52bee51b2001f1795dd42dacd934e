@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Random;
 
 public class PBL_Model {
 	public static void main(String[] args){
@@ -1535,9 +1534,7 @@ public class PBL_Model {
             return "ERR";
         }
         try { 
-        	Random random = new Random();
-        	int randomNumber = 100000 + random.nextInt(900000);
-        	String Password = Integer.toString(randomNumber);
+        	String Password = "00000";
             String query = "UPDATE Account SET Password = ? WHERE MSSV = ?;";
             PreparedStatement pstmt = con.prepareStatement(query);
             pstmt.setString(1, Password);
