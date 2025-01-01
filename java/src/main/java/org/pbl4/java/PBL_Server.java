@@ -53,6 +53,12 @@ class PBLServer extends Thread{
                 case "UpdateInformation":
                 	UpdateInformation();
                 	break;
+                case "GetAllUserRole":
+                	GetAllUserRole();
+                	break;
+                case "GetAllFileRole":
+                	GetAllFileRole();
+                	break;
                 case "GetAllFileName":
                 	GetAllFileName();
                 	break;
@@ -77,6 +83,9 @@ class PBLServer extends Thread{
                 case "ShareFolder":
                 	ShareFolder();
                 	break;
+                case "UpdateFolderRole":
+                	UpdateFolderRole();
+                	break;
                 case "DeleteShareFolder":
                 	DeleteShareFolder();
                 	break;
@@ -94,6 +103,9 @@ class PBLServer extends Thread{
                 	break;
                 case "AddGuest":
                 	AddGuest();
+                	break;
+                case "UpdateFileRole":
+                	UpdateFileRole();
                 	break;
                 case "DelGuest":
                 	DelGuest();
@@ -118,6 +130,9 @@ class PBLServer extends Thread{
                 	break;
                 case "ResetPassword":
                 	ResetPassword();
+                	break;
+                case "UpdateUserRole":
+                	UpdateUserRole();
                 	break;
                 default:
                     System.out.println("Unknown command: " + message);
@@ -150,6 +165,7 @@ class PBLServer extends Thread{
 			ctl.Register();
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
 	}
 	
@@ -252,6 +268,15 @@ class PBLServer extends Thread{
         }
 	}
 	
+	public void UpdateFolderRole() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.UpdateFolderRole();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
 	public void DeleteShareFolder() {
 		try {
 			PBL_Controller ctl = new PBL_Controller(socket);
@@ -301,6 +326,15 @@ class PBLServer extends Thread{
 		try {
 			PBL_Controller ctl = new PBL_Controller(socket);
 			ctl.AddGuest();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
+	public void UpdateFileRole() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.UpdateFileRole();
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -368,6 +402,31 @@ class PBLServer extends Thread{
 		try {
 			PBL_Controller ctl = new PBL_Controller(socket);
 			ctl.ResetPassword();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	public void UpdateUserRole() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.UpdateUserRole();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	
+	public void GetAllUserRole() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.getAllUserRole();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+	}
+	public void GetAllFileRole() {
+		try {
+			PBL_Controller ctl = new PBL_Controller(socket);
+			ctl.getAllFileRole();
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
         }

@@ -40,7 +40,8 @@ public class PBL_Controller {
             
             if (md.Login(MSSV, password)) {
             	dos.writeUTF("Login successfully");
-            	if(md.getRole(MSSV) == 0) {
+//            	System.out.println(md.getRole(MSSV));
+            	if(md.getRole(MSSV).equals("RL01")) {
             		dos.writeUTF("0");
             	}else {
             		int Root = md.GetFolderRoot(MSSV);
@@ -52,6 +53,7 @@ public class PBL_Controller {
             }
         } catch (IOException e) {
             System.out.println("Error in Login: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 	
@@ -75,6 +77,7 @@ public class PBL_Controller {
 
         } catch (IOException e) {
             System.out.println("Error in Register: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -316,8 +319,9 @@ public class PBL_Controller {
     		FolderName = FolderName.trim();
     		int FolderParent = Integer.parseInt(dis.readUTF());
     		PBL_Model md =new PBL_Model();
-    		
-    		if(!md.GetMSSVByFolderID(FolderParent).equals(MSSV)) {
+    		int Role = GetBiggestRole_Folder(MSSV, FolderParent, -1);
+//    		System.out.println(Role);
+    		if( Role > 1 || Role == -1) {
     			dos.writeUTF("MSSV cant create folder here");
     			return;
     		}
@@ -338,7 +342,7 @@ public class PBL_Controller {
     			dos.writeUTF("Create folder failded");
     			return;
     		}
-    		md.CreateFolderrRole(MSSV, FolderID, 0);
+    		md.CreateFolderRole(MSSV, FolderID, 0);
     		CreateFolder(ParentPath + "\\" + ParentName, FolderName);
     		dos.writeUTF("Create folder successfully");
     		
@@ -355,8 +359,9 @@ public class PBL_Controller {
             String FolderName = dis.readUTF();
 
             PBL_Model md = new PBL_Model();
-            
-            if(!md.GetMSSVByFolderID(FolderID).equals(MSSV)) {
+            int Role = GetBiggestRole_Folder(MSSV, FolderID, -1);
+//            System.out.println(Role);
+            if(Role > 1 || Role == -1) {
             	dos.writeUTF("MSSV cant change foldername");
                 return;
             }
@@ -417,8 +422,8 @@ public class PBL_Controller {
 
             // Lấy thông tin thư mục từ model
             PBL_Model md = new PBL_Model();
-
-            if (!md.GetMSSVByFolderID(FolderID).equals(MSSV)) {
+            int Role = GetBiggestRole_Folder(MSSV, FolderID, -1);
+            if (Role > 1 || Role == -1) {
                 dos.writeUTF("MSSV cant delete this folder");
                 return;
             }
@@ -508,10 +513,11 @@ public class PBL_Controller {
     		String Owner = dis.readUTF();
 			int FolderID = Integer.parseInt(dis.readUTF());
 			String MSSV = dis.readUTF();
+			int RoleID = Integer.parseInt(dis.readUTF());
 			
 			PBL_Model md = new PBL_Model();
 			
-			if(!md.GetMSSVByFolderID(FolderID).equals(Owner)) {
+			if(GetBiggestRole_Folder(Owner, FolderID, -1) != 0) {
 				dos.writeUTF("MSSV cant share this folder");
 				return;
 			}
@@ -521,16 +527,53 @@ public class PBL_Controller {
 				return;
 			}
 //			System.out.println(md.CheckFolderRole(MSSV, FolderID));
-			if(md.CheckFolderRole(MSSV, FolderID)) {
+			if(md.CheckFolderRole(MSSV, FolderID) != -1) {
 				dos.writeUTF("Previously shared folder");
 				return;
 			}
 			
-			if(!md.CreateFolderrRole(MSSV, FolderID, 1)) {
+			if(!md.CreateFolderRole(MSSV, FolderID, RoleID)) {
 				dos.writeUTF("Share folder failed");
 				return;
 			}
 			dos.writeUTF("Share folder successfully");
+			dos.flush();
+			
+		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
+		}
+    }
+    
+    public void UpdateFolderRole() {
+    	try {
+    		String Owner = dis.readUTF();
+			int FolderID = Integer.parseInt(dis.readUTF());
+			String MSSV = dis.readUTF();
+			int RoleID = Integer.parseInt(dis.readUTF());
+			
+			PBL_Model md = new PBL_Model();
+//			System.out.println(MSSV);
+			
+			if(GetBiggestRole_Folder(Owner, FolderID, -1) != 0) {
+				dos.writeUTF("MSSV cant Update Role");
+				return;
+			}
+			if(!md.CheckMSSV(MSSV)) {
+				dos.writeUTF("MSSV not found");
+				return;
+			}
+//			System.out.println(md.CheckFolderRole(MSSV, FolderID));
+			if(md.CheckFolderRole(MSSV, FolderID) == -1) {
+				dos.writeUTF("Folder not previously shared");
+				return;
+			}
+			
+			if(!md.UpdateFolderRole(MSSV, FolderID, RoleID)) {
+				dos.writeUTF("Update failed");
+				return;
+			}
+			dos.writeUTF("Update successfully");
 			
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
@@ -545,7 +588,7 @@ public class PBL_Controller {
     		String MSSV = dis.readUTF();
     		PBL_Model md = new PBL_Model();
     		
-    		if(!md.GetMSSVByFolderID(folderID).equals(Owner)) {
+    		if(GetBiggestRole_Folder(Owner, folderID, -1) != 0) {
 				dos.writeUTF("MSSV cant delete");
 				return;
 			}
@@ -569,12 +612,11 @@ public class PBL_Controller {
             Double FileSize = Double.parseDouble(dis.readUTF());
             long Data = FileSize.longValue();
             PBL_Model md = new PBL_Model();
-            
-            if(!md.GetMSSVByFolderID(FolderID).equals(MSSV)) {
+            int Role = GetBiggestRole_Folder(MSSV, FolderID, -1);
+            if(Role > 1 || Role == -1) {
             	dos.writeUTF("MSSV cannot upload file here.");
             	return;
             }
-            // Kiểm tra MSSV
             if (!md.CheckMSSV(MSSV)) {
                 dos.writeUTF("MSSV not found");
                 return;
@@ -605,12 +647,6 @@ public class PBL_Controller {
                 return;
             }
 
-            if (!md.UpdateDataUser(MSSV, UserData + FileSize)) {
-            	md.DeleteFile(FileID);
-                dos.writeUTF("Upload failed: Unable to update data");
-                return;
-            }
-
             String FolderName = md.GetFolderNameByFolderID(FolderID);
             String FolderPath = md.GetFolderPath(FolderID);
             if(FolderPath == null) {
@@ -625,7 +661,13 @@ public class PBL_Controller {
                 return;
             }
             
-            UnZipFile(FileID);
+            FileSize = UnZipFile(FileID);
+            if (!md.UpdateDataUser(MSSV, UserData + FileSize/Math.pow(2, 30))) {
+            	md.DeleteFile(FileID);
+                dos.writeUTF("Upload failed: Unable to update data");
+                return;
+            }
+            md.UpdateFileSize(FileID, FileSize/Math.pow(2, 30));
 
         } catch (IOException e) {
             System.out.println("Error in UploadFile: " + e.getMessage());
@@ -700,26 +742,26 @@ public class PBL_Controller {
         }
     }
     
-    public boolean UnZipFile(int FileID) {
+    public Double UnZipFile(int FileID) {
         try {
             PBL_Model md = new PBL_Model();
             System.out.println(FileID);
             String FileName = md.GetFileNameByFileID(FileID);
 
             if (FileName.equals("ERR")) {
-                System.out.println("UnZIp file failed");
-                return false;
+                System.out.println("UnZip file failed");
+                return -1.0;
             }
 
             int FolderID = md.GetFolderIDByFileID(FileID);
             if (FolderID == -1) {
-                System.out.println("UnZIp file failed");
-                return false;
+                System.out.println("UnZip file failed");
+                return -1.0;
             }
 
             String FolderPath = md.GetFolderPath(FolderID);
-            if(FolderPath == null) {
-            	FolderPath = "";
+            if (FolderPath == null) {
+                FolderPath = "";
             }
             String FolderName = md.GetFolderNameByFolderID(FolderID);
             String baseFolder = "D:\\2024\\PBL4\\FileData";
@@ -735,14 +777,13 @@ public class PBL_Controller {
                 destDirectory.mkdirs();
             }
 
-            // Sử dụng `try-with-resources` để đảm bảo luồng được đóng tự động
             try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(FileZipPath))) {
                 ZipEntry entry = zipIn.getNextEntry();
                 while (entry != null) {
                     String filePath = Paths.get(folderPath, entry.getName()).toString();
                     if (entry.isDirectory()) {
                         File dir = new File(filePath);
-                        dir.mkdirs(); // Tạo thư mục nếu là entry dạng thư mục
+                        dir.mkdirs();
                     } else {
                         extractFile(zipIn, filePath);
                     }
@@ -753,7 +794,7 @@ public class PBL_Controller {
             } catch (IOException e) {
                 System.out.println("Lỗi khi giải nén: " + e.getMessage());
                 e.printStackTrace();
-                return false;
+                return -1.0;
             }
 
             // Xóa file ZIP sau khi giải nén
@@ -768,13 +809,35 @@ public class PBL_Controller {
                 System.out.println("File ZIP không tồn tại: " + FileZipPath);
             }
 
-            return true;
+            // Tính tổng kích thước của các file đã giải nén
+            double totalSize = calculateTotalSize(new File(folderPath));
+            System.out.println("Tổng kích thước file sau khi giải nén: " + totalSize + " bytes");
+            return totalSize;
         } catch (Exception e) {
             System.out.println("Error in UnZipFile: " + e.getMessage());
             e.printStackTrace();
-            return false;
+            return -1.0;
         }
     }
+
+    // Hàm hỗ trợ để tính tổng kích thước file trong thư mục
+    private double calculateTotalSize(File folder) {
+        double totalSize = 0;
+        if (folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        totalSize += file.length();
+                    } else if (file.isDirectory()) {
+                        totalSize += calculateTotalSize(file); // Đệ quy cho thư mục con
+                    }
+                }
+            }
+        }
+        return totalSize;
+    }
+
 
     private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
         try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath))) {
@@ -792,10 +855,10 @@ public class PBL_Controller {
     		String MSSV = dis.readUTF();
 			int FileID = Integer.parseInt(dis.readUTF());
 			PBL_Model md =new PBL_Model();
-			
-			if(!md.GetMSSVByFileID(FileID).equals(MSSV)) {
+			int Role = GetBiggestRole_File(MSSV, FileID);
+			if(Role > 1 || Role == -1) {
 				dos.writeUTF("MSSV cant delete");
-				return;
+				return;	
 			}
 			
 			String FileName = md.GetFileNameByFileID(FileID);
@@ -845,7 +908,8 @@ public class PBL_Controller {
 			String FileName = dis.readUTF();
 			
 			PBL_Model md = new PBL_Model();
-			if(!md.GetMSSVByFileID(FileID).equals(MSSV)) {
+			int Role = GetBiggestRole_File(MSSV, FileID);
+			if(Role > 1 || Role == -1) {
 				dos.writeUTF("Cant rename this file");
 				return;
 			}
@@ -985,8 +1049,10 @@ public class PBL_Controller {
     		String Owner = dis.readUTF();
     		String MSSV = dis.readUTF();
 			int FileID = Integer.parseInt(dis.readUTF());
+			int RoleID = Integer.parseInt(dis.readUTF());
 			PBL_Model md = new PBL_Model();
-			if(!md.GetMSSVByFileID(FileID).equals(Owner)) {
+			int Role = GetBiggestRole_File(Owner, FileID);
+			if(Role != 0) {
 				dos.writeUTF("Cant share this file");
 				return;
 			}
@@ -994,11 +1060,11 @@ public class PBL_Controller {
     			dos.writeUTF("MSSV not found");
     			return;
     		}
-    		if(md.CheckFileRole(MSSV, FileID)) {
+    		if(md.CheckFileRole(MSSV, FileID) != -1) {
     			dos.writeUTF("Previously shared file");
 				return;
     		}
-    		if(!md.CreateFileRole(MSSV, FileID, 1)) {
+    		if(!md.CreateFileRole(MSSV, FileID,RoleID)) {
 				dos.writeUTF("Add guest failed");
 				return;
 			}
@@ -1009,14 +1075,51 @@ public class PBL_Controller {
 		}
     }
     
+    public void UpdateFileRole() {
+    	try {
+    		String Owner = dis.readUTF();
+			int FileID = Integer.parseInt(dis.readUTF());
+			String MSSV = dis.readUTF();
+			int RoleID = Integer.parseInt(dis.readUTF());
+			
+			PBL_Model md = new PBL_Model();
+			int Role = GetBiggestRole_File(Owner, FileID);
+			if(Role != 0) {
+				dos.writeUTF("cant Update Role");
+				return;
+			}
+			
+			if(!md.CheckMSSV(MSSV)) {
+				dos.writeUTF("MSSV not found");
+				return;
+			}
+//			System.out.println(md.CheckFolderRole(MSSV, FolderID));
+			if(md.CheckFileRole(MSSV, FileID) == -1) {
+				dos.writeUTF("File not previously shared");
+				return;
+			}
+			
+			if(!md.UpdateFileRole(MSSV, FileID, RoleID)) {
+				dos.writeUTF("Update failed");
+				return;
+			}
+			dos.writeUTF("Update successfully");
+			
+		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
+		}
+    }
+    
     public void DelGuest() {
     	try {
     		String Owner = dis.readUTF();
     		String MSSV = dis.readUTF();
 			int FileID = Integer.parseInt(dis.readUTF());
 			PBL_Model md = new PBL_Model();
-			if(!md.GetMSSVByFileID(FileID).equals(Owner)) {
-				dos.writeUTF("Cant share this file");
+			int Role = GetBiggestRole_File(Owner, FileID);
+			if(Role != 0) {
+				dos.writeUTF("Cant unshare this file");
 				return;
 			}
     		if(!md.CheckMSSV(MSSV)) {
@@ -1039,7 +1142,7 @@ public class PBL_Controller {
     		String MSSV = dis.readUTF();
 			int FileID = Integer.parseInt(dis.readUTF());
 			PBL_Model md = new PBL_Model();
-			if(!md.GetMSSVByFileID(FileID).equals(MSSV)) {
+			if(GetBiggestRole_File(MSSV, FileID) != 0) {
 				dos.writeUTF("Cant get");
 				return;
 			}
@@ -1060,8 +1163,8 @@ public class PBL_Controller {
     		String MSSV = dis.readUTF();
 			int FolderID = Integer.parseInt(dis.readUTF());
 			PBL_Model md = new PBL_Model();
-			System.out.println(md.GetMSSVByFolderID(FolderID));
-			if(!md.GetMSSVByFolderID(FolderID).equals(MSSV)) {
+//			System.out.println(md.GetMSSVByFolderID(FolderID));
+			if(GetBiggestRole_Folder(MSSV, FolderID, -1) != 0) {
 				dos.writeUTF("Cant get");
 				return;
 			}
@@ -1178,8 +1281,8 @@ public class PBL_Controller {
     		long FolderSize = Long.parseLong(dis.readUTF());
     		
 			PBL_Model md =new PBL_Model();
-			
-			if(!md.GetMSSVByFolderID(ParentFolderID).equals(MSSV)) {
+			int Role = GetBiggestRole_Folder(MSSV, ParentFolderID, -1);
+			if(Role > 1 || Role == -1) {
 				dos.writeUTF("MSSV cant Upload this file here");
 				return;
 			}
@@ -1320,7 +1423,7 @@ public class PBL_Controller {
         		}
         		int FolderID = md.CreateFolder(dir.getName(), FolderParent, ParentPath + "\\" + ParentName);
         		
-        		md.CreateFolderrRole(MSSV, FolderID, 0);
+        		md.CreateFolderRole(MSSV, FolderID, 0);
                 if (files != null) {
                     for (File file : files) {
                     	AddFolderFile(file, FolderID);
@@ -1363,7 +1466,7 @@ public class PBL_Controller {
     	try {
 			String MSSV = dis.readUTF();
 			PBL_Model md = new PBL_Model();
-			if(md.getRole(MSSV) != 0) {
+			if(!md.CheckAdmin(MSSV)) {
 				dos.writeUTF("you are not an administrator");
 				dos.flush();
 				return;
@@ -1379,9 +1482,14 @@ public class PBL_Controller {
     
     public void ResetPassword() {
     	try {
+    		String ID = dis.readUTF();
 			String MSSV = dis.readUTF();
 			PBL_Model md = new PBL_Model();
-			
+			if(!md.CheckAdmin(ID)) {
+				dos.writeUTF("you are not an administrator");
+				dos.flush();
+				return;
+			}
 			if(!md.CheckMSSV(MSSV)) {
 				dos.writeUTF("MSSV not found");
 				return;
@@ -1399,5 +1507,112 @@ public class PBL_Controller {
 			e.printStackTrace();
 		}
     }
+    
+    public void UpdateUserRole() {
+    	try {
+    		String ID = dis.readUTF();
+			String MSSV = dis.readUTF();
+			String UserRoleID = dis.readUTF();
+			PBL_Model md = new PBL_Model();
+			
+			if(!md.CheckAdmin(ID)) {
+				dos.writeUTF("you are not an administrator");
+				dos.flush();
+				return;
+			}
+			
+			if(!md.CheckMSSV(MSSV)) {
+				dos.writeUTF("MSSV not found");
+				return;
+			}
+
+			if(!md.UpdateUserRole(MSSV, UserRoleID)) {
+				dos.writeUTF("Update UserRole failed");
+				return;
+			}
+			dos.writeUTF("Update successfully");
+			dos.flush();
+		} catch (Exception e) {
+			System.out.println("ERR: " + e.getMessage());
+			e.printStackTrace();
+		}
+    }
+    
+    public void getAllUserRole() {
+    	try {
+    		PBL_Model md = new PBL_Model();
+			String Role = md.GetAllUserRole();
+			dos.writeUTF(Role);
+			dos.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+    public void getAllFileRole() {
+    	try {
+    		PBL_Model md = new PBL_Model();
+			String Role = md.GetAllFileRole();
+			dos.writeUTF(Role);
+			dos.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+    
+    public int GetBiggestRole_Folder(String MSSV, int FolderID, int Role) {
+        try {
+            PBL_Model md = new PBL_Model();
+            int FolderRole = md.CheckFolderRole(MSSV, FolderID);
+
+            if (Role == -1) { 
+                Role = FolderRole;
+            } else {
+            	if(FolderRole != -1) {
+            		Role = Math.min(Role, FolderRole);
+            	}
+            }
+//            System.out.println(FolderID);
+//            System.out.println(Role);
+            Integer ParentID = md.GetFolderParent(FolderID);
+
+            // Nếu Folder cha tồn tại, đệ quy tiếp tục tìm Role
+            if (ParentID != -1) {
+                Role = GetBiggestRole_Folder(MSSV, ParentID, Role);
+            }
+
+            return Role;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1; 
+        }
+    }
+    
+    public int GetBiggestRole_File(String MSSV, int FileID) {
+        try {
+            PBL_Model md = new PBL_Model();
+            int Role = md.CheckFileRole(MSSV, FileID);
+            int FolderID = md.GetFolderIDByFileID(FileID);
+            int FolderRole = md.CheckFolderRole(MSSV, FolderID);
+
+            if (Role == -1) { 
+                Role = FolderRole;
+            } else {
+                Role = Math.min(Role, FolderRole);
+            }
+
+            Integer ParentID = md.GetFolderParent(FolderID);
+
+            // Nếu Folder cha tồn tại, đệ quy tiếp tục tìm Role
+            if (ParentID != -1) {
+                Role = GetBiggestRole_Folder(MSSV, ParentID, Role);
+            }
+
+            return Role;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1; 
+        }
+    }
+
 }
 

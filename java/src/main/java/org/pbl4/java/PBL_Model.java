@@ -42,7 +42,9 @@ public class PBL_Model {
 //		System.out.println(md.GetAllFileByFolderID(9));
 //		System.out.println(md.GetFolderPath(6));
 //		System.out.println(md.CheckFolderExits(9, "abc"));
-		System.out.println(md.CheckFolderRole("102220024", 1));
+//		System.out.println(md.CheckFolderRole("102220024", 1));
+//		System.out.println(md.GetAllUserRole());
+		System.out.println(md.GetAllFileRole());
 	}
 	public Connection GetConnection() {
 		String Database = "jdbc:mysql://localhost:3306/filemanagement";
@@ -84,6 +86,7 @@ public class PBL_Model {
 
         } catch (Exception e) {
             System.err.println("Err:" + e);
+            e.printStackTrace();
             return false;
         }finally {
             try {
@@ -92,6 +95,7 @@ public class PBL_Model {
                 }
             } catch (SQLException e) {
                 System.out.println("Err close the database: " + e.getMessage());
+                e.printStackTrace();
             }
         }
 	}
@@ -102,22 +106,25 @@ public class PBL_Model {
             return false;
         }
 
-        String query = "SELECT * FROM Account WHERE MSSV = ? AND Password = ?";
+        String query = "SELECT * FROM users WHERE MSSV = ?";
 
         try {
             PreparedStatement pstmt = con.prepareStatement(query);
             pstmt.setString(1, MSSV);
-            pstmt.setString(2, Password);
 
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                return true;
+            	if(rs.getString("Password").equals(Password)) return true;
+            	else {
+            		return false;
+            	}
             } else {
                 return false;
             }
 
         } catch (SQLException e) {
             System.out.println("Error query: " + e.getMessage());
+            e.printStackTrace();
             return false;
         } finally {
             try {
@@ -126,6 +133,7 @@ public class PBL_Model {
                 }
             } catch (SQLException e) {
                 System.out.println("Err close the database: " + e.getMessage());
+                e.printStackTrace();
             }
         }
 	}
@@ -138,27 +146,24 @@ public class PBL_Model {
 	    }
 	    PreparedStatement pstmt = null;
 	    try {
-	        String query = "INSERT INTO Users (MSSV, Name, Class) VALUES (?, ?, ?)";
-	        pstmt = con.prepareStatement(query);
-	        pstmt.setString(1, MSSV);
-	        pstmt.setString(2, Name);
-	        pstmt.setString(3, Class);
-	        pstmt.executeUpdate();
-
-	        query = "INSERT INTO Account (MSSV, Password) VALUES (?, ?)";
+	        String query = "INSERT INTO Users (MSSV, Password, Name, Class, UserRoleID) VALUES (?, ?, ?, ?, ?)";
 	        pstmt = con.prepareStatement(query);
 	        pstmt.setString(1, MSSV);
 	        pstmt.setString(2, Password);
+	        pstmt.setString(3, Name);
+	        pstmt.setString(4, Class);
+	        pstmt.setString(5, "RL02");
 	        pstmt.executeUpdate();
 	        
 	        int FolderID = CreateFolder(MSSV, 0,"");
-	        CreateFolderrRole(MSSV, FolderID, 0);
+	        CreateFolderRole(MSSV, FolderID, 0);
 	        
 	        pstmt.close();
 	        con.close();
 	        return true;
 	    } catch (Exception e) {
 	        System.err.println("Error: " + e.getMessage());
+	        e.printStackTrace();
 	        return false;
 	    } finally {
 	        try {
@@ -167,6 +172,7 @@ public class PBL_Model {
 	            }
 	        } catch (SQLException e) {
 	            System.out.println("Error closing the database: " + e.getMessage());
+	            e.printStackTrace();
 	        }
 	    }
 	}
@@ -178,7 +184,7 @@ public class PBL_Model {
 			return "ERR";
 		}
 		try {
-			String query = "Select Password from Account where MSSV = ?";
+			String query = "Select Password from Users where MSSV = ?";
 			PreparedStatement pstmt = con.prepareStatement(query);
 			pstmt.setString(1, MSSV);
 			ResultSet rs = pstmt.executeQuery();
@@ -237,7 +243,7 @@ public class PBL_Model {
 		}
 		PreparedStatement pstmt = null;
 		try {
-	        String query = "Update Account set Password = ? where MSSV = ?";
+	        String query = "Update Users set Password = ? where MSSV = ?";
 	        pstmt = con.prepareStatement(query);
 	        pstmt.setString(1, Password);
 	        pstmt.setString(2, MSSV);
@@ -266,7 +272,7 @@ public class PBL_Model {
 			return "ERR";
 		}
 		try {
-			String query = "Select * from Users where MSSV = ?";
+			String query = "Select * from Users as U join userrole as R on U.UserRoleID = R.UserRoleID where MSSV = ? ";
 			PreparedStatement pstmt = con.prepareStatement(query);
 			pstmt.setString(1, MSSV);
 			ResultSet rs = pstmt.executeQuery();
@@ -350,6 +356,7 @@ public class PBL_Model {
 
         } catch (Exception e) {
             System.err.println("Err UpdateInfor:" + e);
+            e.printStackTrace();
             return false;
         }finally {
             try {
@@ -358,10 +365,10 @@ public class PBL_Model {
                 }
             } catch (SQLException e) {
                 System.out.println("Err close the database: " + e.getMessage());
+                e.printStackTrace();
             }
         }
 	}
-	
 	
 	//Folder
 	public int CreateFolder(String FolderName, int Parent, String FolderPath) {
@@ -500,7 +507,7 @@ public class PBL_Model {
 	    }
 	}
 	
-	public boolean CreateFolderrRole(String MSSV,int FolderID, int Role) {
+	public boolean CreateFolderRole(String MSSV,int FolderID, int Role) {
 		Connection con = GetConnection();
 		if(con == null) {
 			System.out.println("Cant connect with database");
@@ -508,7 +515,7 @@ public class PBL_Model {
 		}
 		PreparedStatement pstmt = null;
 	    try {
-	    	String query = "INSERT INTO FolderRole (MSSV, FolderID, Role) VALUES (?, ?, ?)";
+	    	String query = "INSERT INTO FolderRole (MSSV, FolderID, RoleID) VALUES (?, ?, ?)";
 	        pstmt = con.prepareStatement(query);
 	        pstmt.setString(1, MSSV);
 	        pstmt.setInt(2, FolderID);
@@ -532,6 +539,39 @@ public class PBL_Model {
 	        }
 	    }
 	}
+	
+	public boolean UpdateFolderRole(String MSSV, int FolderID, int RoleID) {
+		Connection con = GetConnection();
+		if(con == null) {
+			System.out.println("Cant connect with database");
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+	    	String query = "Update Folderrole set RoleID = ? where MSSV = ? and FolderID = ?";
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setInt(1, RoleID);
+	        pstmt.setString(2, MSSV);
+	        pstmt.setInt(3, FolderID);
+	        pstmt.executeUpdate();
+
+	        pstmt.close();
+	        con.close();
+	        return true;
+	    } catch (Exception e) {
+	        System.err.println("Error: " + e.getMessage());
+	        return false;
+	    } finally {
+	        try {
+	            if (con != null) {
+	                con.close();
+	            }
+	        } catch (SQLException e) {
+	            System.out.println("Error closing the database: " + e.getMessage());
+	        }
+	    }
+	}
+	
 	public boolean DeleteFolderRole(String MSSV, int FolderID) {
 		Connection con = GetConnection();
 		if(con == null) {
@@ -615,6 +655,37 @@ public class PBL_Model {
 	    	String query = "Update Files set FileName = ? where FileID = ?";
 	        pstmt = con.prepareStatement(query);
 	        pstmt.setString(1, FileName);
+	        pstmt.setInt(2, FileID);
+	        pstmt.executeUpdate();
+
+	        pstmt.close();
+	        con.close();
+	        return true;
+	    } catch (Exception e) {
+	        System.err.println("Error: " + e.getMessage());
+	        return false;
+	    } finally {
+	        try {
+	            if (con != null) {
+	                con.close();
+	            }
+	        } catch (SQLException e) {
+	            System.out.println("Error closing the database: " + e.getMessage());
+	        }
+	    }
+	}
+	
+	public boolean UpdateFileSize(int FileID, Double FileSize) {
+		Connection con = GetConnection();
+		if(con == null) {
+			System.out.println("Cant connect with database");
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+	    	String query = "Update Files set FileSize = ? where FileID = ?";
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setDouble(1, FileSize);
 	        pstmt.setInt(2, FileID);
 	        pstmt.executeUpdate();
 
@@ -733,7 +804,7 @@ public class PBL_Model {
 		}
 		PreparedStatement pstmt = null;
 	    try {
-	    	String query = "INSERT INTO FileRole (MSSV, FileID, Role) VALUES (?, ?, ?)";
+	    	String query = "INSERT INTO FileRole (MSSV, FileID, RoleID) VALUES (?, ?, ?)";
 	        pstmt = con.prepareStatement(query);
 	        pstmt.setString(1, MSSV);
 	        pstmt.setInt(2, FileID);
@@ -741,6 +812,38 @@ public class PBL_Model {
 	        
 	        pstmt.executeUpdate();
 	        
+	        pstmt.close();
+	        con.close();
+	        return true;
+	    } catch (Exception e) {
+	        System.err.println("Error: " + e.getMessage());
+	        return false;
+	    } finally {
+	        try {
+	            if (con != null) {
+	                con.close();
+	            }
+	        } catch (SQLException e) {
+	            System.out.println("Error closing the database: " + e.getMessage());
+	        }
+	    }
+	}
+	
+	public boolean UpdateFileRole(String MSSV, int FileID, int RoleID) {
+		Connection con = GetConnection();
+		if(con == null) {
+			System.out.println("Cant connect with database");
+			return false;
+		}
+		PreparedStatement pstmt = null;
+		try {
+	    	String query = "Update Files set RoleID = ? where MSSV = ? and FileID = ?";
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setInt(1, RoleID);
+	        pstmt.setString(2, MSSV);
+	        pstmt.setInt(3, FileID);
+	        pstmt.executeUpdate();
+
 	        pstmt.close();
 	        con.close();
 	        return true;
@@ -1163,7 +1266,11 @@ public class PBL_Model {
 			pstmt.setInt(1, FolderID);
 			ResultSet rs = pstmt.executeQuery();
 			while(rs.next()) {
-				return rs.getInt("FolderParent");
+				String Parent = rs.getString("FolderParent");
+				if(Parent != null) {
+					return Integer.parseInt(Parent);
+				}
+
 			}
 			return -1;
 		} catch (Exception e) {
@@ -1180,11 +1287,11 @@ public class PBL_Model {
         }
 	}
 	
-	public boolean CheckFolderRole(String MSSV, int FolderID) {
+	public int CheckFolderRole(String MSSV, int FolderID) {
 		Connection con = GetConnection();
         if (con == null) {
             System.out.println("Cant connect with database");
-            return false;
+            return -1;
         }
         try {
             String query = "SELECT * FROM folderrole WHERE MSSV= ? and FolderID = ?";
@@ -1192,14 +1299,14 @@ public class PBL_Model {
             stmt.setString(1, MSSV);
             stmt.setInt(2, FolderID);
             ResultSet  rs = stmt.executeQuery();
-            if(!rs.next()){
-                return false;
+            if(rs.next()){
+                return rs.getInt("RoleID");
             }
-            return true;
+            return -1;
 
         } catch (Exception e) {
             System.err.println("Err:" + e);
-            return false;
+            return -1;
         }finally {
             try {
                 if (con != null) {
@@ -1211,11 +1318,11 @@ public class PBL_Model {
         }
 	}
 	
-	public boolean CheckFileRole(String MSSV, int FileID) {
+	public int CheckFileRole(String MSSV, int FileID) {
 		Connection con = GetConnection();
         if (con == null) {
             System.out.println("Cant connect with database");
-            return false;
+            return -1;
         }
         try {
             String query = "SELECT * FROM filerole WHERE MSSV= ? and FileID = ?";
@@ -1223,14 +1330,14 @@ public class PBL_Model {
             stmt.setString(1, MSSV);
             stmt.setInt(2, FileID);
             ResultSet  rs = stmt.executeQuery();
-            if(!rs.next()){
-                return false;
+            if(rs.next()){
+                return rs.getInt("RoleID");
             }
-            return true;
+            return -1;
 
         } catch (Exception e) {
             System.err.println("Err:" + e);
-            return false;
+            return -1;
         }finally {
             try {
                 if (con != null) {
@@ -1338,7 +1445,7 @@ public class PBL_Model {
 			return "ERR";
 		}
 		try {
-			String query = "Select MSSV from folderrole where FolderID = ? and Role = 0";
+			String query = "Select MSSV from folderrole where FolderID = ? and RoleID = 'RL01'";
 			PreparedStatement pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, FolderID);
 			ResultSet rs = pstmt.executeQuery();
@@ -1396,17 +1503,20 @@ public class PBL_Model {
             return "ERR";
         }
     	try {
-    		String query = "Select MSSV from filerole  where FileID = ? and Role = 1";
+    		String query = "SELECT * "
+    				+ "FROM filerole AS f "
+    				+ "JOIN role AS r ON f.RoleID = r.RoleID "
+    				+ "WHERE f.RoleID != 0 and f.FileID = ?";
 		     PreparedStatement pstmt = con.prepareStatement(query);
 		     pstmt.setInt(1, FileID);
 		     ResultSet rs  = pstmt.executeQuery();
 		     String result = "";
 		     while (rs.next()) {
-	                result += rs.getString("MSSV") + ",";
+	                result += rs.getString("MSSV") + "," + rs.getInt("RoleID") + "," + rs.getString("RoleName") + ";";
 	            }
-	            if (result.endsWith(",")) {
-	                result = result.substring(0, result.length() - 1);
-	            }
+            if (result.endsWith(";")) {
+                result = result.substring(0, result.length() - 1);
+            }
 	         return result;
 			
 		} catch (Exception e) {
@@ -1430,17 +1540,20 @@ public class PBL_Model {
             return "ERR";
         }
     	try {
-    		String query = "Select MSSV from folderrole  where FolderID = ? and Role = 1";
+    		String query = "SELECT * "
+    				+ "FROM folderrole AS f "
+    				+ "JOIN role AS r ON f.RoleID = r.RoleID "
+    				+ "WHERE f.RoleID != 0 and f.FolderID = ?";
 		     PreparedStatement pstmt = con.prepareStatement(query);
 		     pstmt.setInt(1, FolderID);
 		     ResultSet rs  = pstmt.executeQuery();
 		     String result = "";
 		     while (rs.next()) {
-	                result += rs.getString("MSSV") + ",";
+	                result += rs.getString("MSSV") + "," + rs.getInt("RoleID") + "," + rs.getString("RoleName") + ";";
 	            }
-	            if (result.endsWith(",")) {
-	                result = result.substring(0, result.length() - 1);
-	            }
+            if (result.endsWith(";")) {
+                result = result.substring(0, result.length() - 1);
+            }
 	         return result;
 			
 		} catch (Exception e) {
@@ -1562,6 +1675,67 @@ public class PBL_Model {
         }
 	}
 	
+	public boolean CheckAdmin(String MSSV) {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Can't connect with database");
+            return false;
+        }
+        try {
+            String query = "Select UserRoleID From Users where MSSV = ?";
+            PreparedStatement pstmt = con.prepareStatement(query);
+            pstmt.setString(1,MSSV);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+            	if(rs.getString("UserRoleID").equals("RL01"))
+            		return true;
+            }
+            return false;
+        } catch (Exception e) {
+            System.out.println("ERR: " + e.getMessage());
+            return false;
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public boolean UpdateUserRole(String MSSV, String UserRoleID) {
+		Connection con = GetConnection();
+		if(con == null) {
+			System.out.println("Cant connect with database");
+			return false;
+		}
+		try {
+	        String query = "UPDATE Users SET UserRoleID = ? WHERE MSSV = ?";
+	        PreparedStatement pstmt = con.prepareStatement(query);
+	        pstmt.setString(1,UserRoleID);
+	        pstmt.setString(2,MSSV);
+	        pstmt.executeUpdate();
+	        pstmt.close();
+	        con.close();
+	        return true;
+	
+	    } catch (Exception e) {
+	        System.err.println("Err UpdateUserRole:" + e);
+	        e.printStackTrace();
+	        return false;
+	    }finally {
+	        try {
+	            if (con != null) {
+	                con.close();
+	            }
+	        } catch (SQLException e) {
+	            System.out.println("Err close the database: " + e.getMessage());
+	            e.printStackTrace();
+	        }
+	    }
+	}
 	public String ResetPassword(String MSSV) {
 		Connection con = GetConnection();
         if (con == null) {
@@ -1572,7 +1746,7 @@ public class PBL_Model {
         	Random random = new Random();
         	int randomNumber = 100000 + random.nextInt(900000);
         	String Password = Integer.toString(randomNumber);
-            String query = "UPDATE Account SET Password = ? WHERE MSSV = ?;";
+            String query = "UPDATE Users SET Password = ? WHERE MSSV = ?;";
             PreparedStatement pstmt = con.prepareStatement(query);
             pstmt.setString(1, Password);
             pstmt.setString(2, MSSV);
@@ -1592,11 +1766,11 @@ public class PBL_Model {
         }
 	}
 	
-	public int getRole(String MSSV) {
+	public String getRole(String MSSV) {
 		Connection con = GetConnection();
         if (con == null) {
             System.out.println("Cant connect with database");
-            return -1;
+            return "ERR";
         }
         try {
             String query = "SELECT * FROM Users where MSSV = ?";
@@ -1604,12 +1778,13 @@ public class PBL_Model {
             stmt.setString(1, MSSV);
             ResultSet  rs = stmt.executeQuery();
             if(rs.next()) {
-            	return rs.getInt("Role");
+            	return rs.getString("UserRoleID");
             }
-            return -1;
+            return "ERR";
         } catch (Exception e) {
             System.err.println("Err:" + e);
-            return -1;
+            e.printStackTrace();
+            return "ERR";
         }finally {
             try {
                 if (con != null) {
@@ -1617,6 +1792,75 @@ public class PBL_Model {
                 }
             } catch (SQLException e) {
                 System.out.println("Err close the database: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+	}
+	
+	public String GetAllUserRole() {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Can't connect with database");
+            return "ERR";
+        }
+        try {
+            String query = "SELECT * FROM userrole";
+            PreparedStatement pstmt = con.prepareStatement(query);
+            String result = "";
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                result +=rs.getString("UserRoleID") + ","+  rs.getString("RoleName") + ";";
+            }
+            if (result.endsWith(";")) {
+                result = result.substring(0, result.length() - 1);
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println("ERR  : " + e.getMessage());
+            e.printStackTrace();
+            return "ERR";
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+	}
+	
+	public String GetAllFileRole() {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Can't connect with database");
+            return "ERR";
+        }
+        try {
+            String query = "SELECT * FROM role";
+            PreparedStatement pstmt = con.prepareStatement(query);
+            String result = "";
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                result +=rs.getString("RoleID") + ","+  rs.getString("RoleName") + ";";
+            }
+            if (result.endsWith(";")) {
+                result = result.substring(0, result.length() - 1);
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println("ERR  : " + e.getMessage());
+            e.printStackTrace();
+            return "ERR";
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+                e.printStackTrace();
             }
         }
 	}

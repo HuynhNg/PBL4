@@ -31,17 +31,19 @@ public class MyClient {
     public static void main(String[] args) {
         MyClient  client = new MyClient();
         client.startClient();
+//        client.getAllFileRole();
 //        client.Login();
 //        client.Register();
 //        client.UpdatePassword();
-//        client.GetInformation();
+        client.GetInformation();
 //        client.UpdateInformation();
 //        client.GetFile();
 //        client.GetAllByFolderID();
 //        client.CreateFolder();
 //      client.ChangeFolderName();
-        	client.DeleteFolder();
+//        	client.DeleteFolder();
 //        client.ShareFolder();
+//        client.UpdateFolderRole();
 //        client.DaleteShareFolder();
 //        client.DeleteFile();
 //        client.RenameFile();
@@ -62,19 +64,30 @@ public class MyClient {
     public void Login(){
         try {
             dos.writeUTF("Login");
-            dos.writeUTF("Admin");
-            dos.writeUTF("00000000");
+            dos.writeUTF("Admin00");
+            dos.writeUTF("123");
             String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+            message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {
             System.out.println("Login Err: " + e.getMessage());
         }
     }
+    public void getAllFileRole(){
+        try {
+            dos.writeUTF("GetAllFileRole");
+            String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
     public void Register(){
         try {
             dos.writeUTF("Register");
-            dos.writeUTF("102220025");
-            dos.writeUTF("Nguyen Van A");
+            dos.writeUTF("102220024");
+            dos.writeUTF("Nguyễn Huynh");
             dos.writeUTF("22T_KDHL");
             dos.writeUTF("123");
             String message = dis.readUTF();
@@ -149,7 +162,7 @@ public class MyClient {
     		dos.writeUTF("CreateFolder");
     		dos.writeUTF("102220024");
             dos.writeUTF("Book");
-            dos.writeUTF("1");
+            dos.writeUTF("14");
             String message = dis.readUTF();
             System.out.println("Folder: " + message);
             String message1 = dis.readUTF();
@@ -161,9 +174,9 @@ public class MyClient {
     public void ChangeFolderName() {
     	try {
     		dos.writeUTF("ChangeFolderName");
-    		dos.writeUTF("102220024");
-            dos.writeUTF("5");
-            dos.writeUTF("aaaaaa");
+    		dos.writeUTF("102220025");
+            dos.writeUTF("15");
+            dos.writeUTF("book");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {
@@ -174,8 +187,8 @@ public class MyClient {
     public void DeleteFolder() {
     	try {
     		dos.writeUTF("DeleteFolder");
-    		dos.writeUTF("102220024");
-            dos.writeUTF("4");
+    		dos.writeUTF("102220025");
+            dos.writeUTF("15");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {
@@ -186,9 +199,24 @@ public class MyClient {
     public void ShareFolder() {
     	try {
     		dos.writeUTF("ShareFolder");
-    		dos.writeUTF("102220025");
-            dos.writeUTF("35");
-            dos.writeUTF("102220024");
+    		dos.writeUTF("102220024");
+            dos.writeUTF("15");
+            dos.writeUTF("102220025");
+            dos.writeUTF("2");
+            String message = dis.readUTF();
+            System.out.println("Received from server: " + message);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+    
+    public void UpdateFolderRole() {
+    	try {
+    		dos.writeUTF("UpdateFolderRole");
+    		dos.writeUTF("102220024");
+            dos.writeUTF("15");
+            dos.writeUTF("102220025");
+            dos.writeUTF("1");
             String message = dis.readUTF();
             System.out.println("Received from server: " + message);
         } catch (Exception e) {
@@ -213,7 +241,7 @@ public class MyClient {
     	try {
 			dos.writeUTF("DeleteFile");
 			dos.writeUTF("102220024");
-			dos.writeUTF("13");
+			dos.writeUTF("8");
 			String message = dis.readUTF();
             System.out.println("Received from server: " + message);
 		} catch (Exception e) {
@@ -252,7 +280,7 @@ public class MyClient {
 //            dos.writeUTF("GetAllFileGuest");
     		dos.writeUTF("GetAllFolderGuest");
             dos.writeUTF("102220024");
-            dos.writeUTF("6");
+            dos.writeUTF("15");
     		
 //            dos.writeUTF("AddGuest");
 //            dos.writeUTF("102220050");
@@ -311,7 +339,8 @@ public class MyClient {
     public void sendFile() {
         try {
             // Đường dẫn file
-            File file = new File("D:\\2024\\cnpm.zip");
+        	
+            File file = new File("D:\\2024\\PBL4\\Đề tài\\TanKhoi - Danh sach De tai PBL HeDieuHanh&MMT.docx.zip");
             if (!file.exists()) {
                 System.out.println("File không tồn tại: " + file.getAbsolutePath());
                 return;
@@ -321,10 +350,10 @@ public class MyClient {
             System.out.println("Kích thước file: " + file.length() + " bytes");
 
             // Gửi thông tin file
-            dos.writeUTF("UploadFolder"); // Loại yêu cầu
+            dos.writeUTF("UploadFile"); // Loại yêu cầu
             dos.writeUTF("102220024"); // MSSV
-            dos.writeUTF("cnpm"); // Tên file
-            dos.writeUTF("1");
+            dos.writeUTF("TanKhoi - Danh sach De tai PBL HeDieuHanh&MMT.docx"); // Tên file
+            dos.writeUTF("15");
             dos.writeUTF(String.valueOf(file.length())); // Kích thước file
 
             // Gửi dữ liệu file
