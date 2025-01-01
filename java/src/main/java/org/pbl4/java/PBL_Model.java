@@ -42,6 +42,7 @@ public class PBL_Model {
 //		System.out.println(md.GetAllFileByFolderID(9));
 //		System.out.println(md.GetFolderPath(6));
 //		System.out.println(md.CheckFolderExits(9, "abc"));
+		System.out.println(md.CheckFolderRole("102220024", 1));
 	}
 	public Connection GetConnection() {
 		String Database = "jdbc:mysql://localhost:3306/filemanagement";
@@ -308,8 +309,9 @@ public class PBL_Model {
             PreparedStatement pstmt = con.prepareStatement(query);
             pstmt.setString(1,Name);
             pstmt.setString(2,Class);
-            pstmt.setString(3,MSSV);
-            pstmt.setInt(4, Role);
+            pstmt.setInt(3, Role);
+            pstmt.setString(4,MSSV);
+
             pstmt.executeUpdate();
             pstmt.close();
             con.close();
@@ -317,6 +319,7 @@ public class PBL_Model {
 
         } catch (Exception e) {
             System.err.println("Err UpdateInfor:" + e);
+            e.printStackTrace();
             return false;
         }finally {
             try {
@@ -1188,6 +1191,37 @@ public class PBL_Model {
             PreparedStatement stmt = con.prepareStatement(query);
             stmt.setString(1, MSSV);
             stmt.setInt(2, FolderID);
+            ResultSet  rs = stmt.executeQuery();
+            if(!rs.next()){
+                return false;
+            }
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Err:" + e);
+            return false;
+        }finally {
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Err close the database: " + e.getMessage());
+            }
+        }
+	}
+	
+	public boolean CheckFileRole(String MSSV, int FileID) {
+		Connection con = GetConnection();
+        if (con == null) {
+            System.out.println("Cant connect with database");
+            return false;
+        }
+        try {
+            String query = "SELECT * FROM filerole WHERE MSSV= ? and FileID = ?";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1, MSSV);
+            stmt.setInt(2, FileID);
             ResultSet  rs = stmt.executeQuery();
             if(!rs.next()){
                 return false;

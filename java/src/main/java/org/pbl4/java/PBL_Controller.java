@@ -39,14 +39,14 @@ public class PBL_Controller {
 
             
             if (md.Login(MSSV, password)) {
+            	dos.writeUTF("Login successfully");
             	if(md.getRole(MSSV) == 0) {
             		dos.writeUTF("0");
-            	}
-            	else {
+            	}else {
             		int Root = md.GetFolderRoot(MSSV);
-                	dos.writeUTF("Login successfully");
-                	dos.writeUTF(Integer.toString(Root));
+            		dos.writeUTF(Integer.toString(Root));
             	}
+                	
             } else {
                 dos.writeUTF("Login Failed");
             }
@@ -313,6 +313,7 @@ public class PBL_Controller {
     	try {
     		String MSSV = dis.readUTF();
     		String FolderName = dis.readUTF();
+    		FolderName = FolderName.trim();
     		int FolderParent = Integer.parseInt(dis.readUTF());
     		PBL_Model md =new PBL_Model();
     		
@@ -486,7 +487,7 @@ public class PBL_Controller {
                 md.UpdateDataUser(MSSV, data);
 
                 // Thông báo thành công kèm tổng kích thước
-                dos.writeUTF("Delete Folder successfully. Total data deleted: " + totalSize[0] + " bytes.");
+                dos.writeUTF("Delete Folder successfully");
                 System.out.println("Folder deleted successfully: " + folderPath);
 //                System.out.println("Total data deleted: " + totalSize[0] + " bytes.");
 
@@ -519,7 +520,7 @@ public class PBL_Controller {
 				dos.writeUTF("MSSV not found");
 				return;
 			}
-			
+//			System.out.println(md.CheckFolderRole(MSSV, FolderID));
 			if(md.CheckFolderRole(MSSV, FolderID)) {
 				dos.writeUTF("Previously shared folder");
 				return;
@@ -993,6 +994,10 @@ public class PBL_Controller {
     			dos.writeUTF("MSSV not found");
     			return;
     		}
+    		if(md.CheckFileRole(MSSV, FileID)) {
+    			dos.writeUTF("Previously shared file");
+				return;
+    		}
     		if(!md.CreateFileRole(MSSV, FileID, 1)) {
 				dos.writeUTF("Add guest failed");
 				return;
@@ -1386,6 +1391,7 @@ public class PBL_Controller {
 				dos.writeUTF("Cant reset password");
 				return;
 			}
+			dos.writeUTF("Reset successfully");
 			dos.writeUTF(NewPass);
 			dos.flush();
 		} catch (Exception e) {
